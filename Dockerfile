@@ -48,6 +48,7 @@ RUN set -Eeuo pipefail && \
     apt-get update && \
     apt-get full-upgrade -y && \
     apt-get --no-install-recommends install -y \
+      tini \
       proxmox-ve \
       postfix \
       open-iscsi \
@@ -90,14 +91,21 @@ RUN set -Eeuo pipefail && \
       /usr/share/mime \
       /usr/share/doc \
       /usr/share/man && \
-    # Set password to root:root
-    echo 'root:root' | chpasswd && \
+    # Store version number
+    echo "$VERSION_ARG" > /run/version && \
+    # Set username and password
+    printf '%s:%s\n' "$USERNAME" "$PASSWORD" | chpasswd && \
     # Cleanup files
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+COPY --chmod=755 ./entrypoint.sh /run/
+
+ENV USERNAME="root"
+ENV PASSWORD="root"
 
 EXPOSE 8006
 
 HEALTHCHECK --interval=60s --timeout=10s --start-period=60s --retries=3 \
   CMD curl -LfSs http://localhost:8006 >/dev/null || exit 1
 
-CMD ["/sbin/init"]
+ENTRYPOINT ["/usr/bin/tini", "-s", "/run/entrypoint.sh"]
