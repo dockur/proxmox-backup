@@ -12,9 +12,6 @@ info () { printf "%b%s%b" "\E[1;34m❯ \E[1;36m" "${1:-}" "\E[0m\n"; }
 error () { printf "%b%s%b" "\E[1;31m❯ " "ERROR: ${1:-}" "\E[0m\n" >&2; }
 warn () { printf "%b%s%b" "\E[1;31m❯ " "Warning: ${1:-}" "\E[0m\n" >&2; }
 
-trap 'error "Status $? while: $BASH_COMMAND (line $LINENO/$BASH_LINENO)"' ERR
-[[ "${TRACE:-}" == [Yy1]* ]] && set -o functrace && trap 'echo "# $BASH_COMMAND" >&2' DEBUG
-
 # Check environment
 [ ! -f "/run/entrypoint.sh" ] && error "Script must be run inside the container!" && exit 11
 [ "$(id -u)" -ne "0" ] && error "Script must be executed with root privileges." && exit 12
@@ -69,4 +66,4 @@ fi
 # Update username and password
 printf '%s:%s\n' "$USERNAME" "$PASSWORD" | chpasswd
 
-exec /sbin/init
+exec /usr/sbin/init
