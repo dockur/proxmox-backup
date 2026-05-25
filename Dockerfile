@@ -93,8 +93,6 @@ RUN set -Eeuo pipefail && \
       /usr/share/man && \
     # Store version number
     echo "$VERSION_ARG" > /run/version && \
-    # Set username and password
-    printf '%s:%s\n' "$USERNAME" "$PASSWORD" | chpasswd && \
     # Cleanup files
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
