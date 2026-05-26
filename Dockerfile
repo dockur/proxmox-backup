@@ -99,7 +99,6 @@ RUN set -Eeuo pipefail && \
 
 COPY --chmod=755 ./entrypoint.sh /run/
 
-ENV USERNAME="root"
 ENV PASSWORD="root"
 
 EXPOSE 8006
