@@ -57,7 +57,6 @@ Suites: ${SUITE}
 Components: ${COMPONENT}
 Signed-By: ${KEY_PATH}
 SOURCES
-EOF
 
 # Block unneeded packages in container
 cat > /etc/apt/preferences.d/99-pve-unneeded-packages <<PKG
@@ -65,7 +64,6 @@ Package: proxmox-default-kernel proxmox-kernel-* pve-firmware
 Pin: release *
 Pin-Priority: -1
 PKG
-EOF
 
 # Prevent services from starting during install
 printf '#!/bin/sh\nexit 101\n' > /usr/sbin/policy-rc.d
