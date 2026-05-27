@@ -8,8 +8,8 @@ services:
     ports:
       - 8006:8006
     volumes:
-      - ./config:/etc/pve
-      - ./storage:/var/lib/vz    
+      - ./storage:/var/lib/vz
+      - ./config:/var/lib/pve-cluster
       - /var/run/docker.sock:/var/run/docker.sock      
     privileged: true
     restart: on-failure
