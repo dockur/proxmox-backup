@@ -19,6 +19,27 @@ info "Starting Proxmox for Docker v$(</run/version)..."
 info "For support visit https://github.com/dockur/proxmox"
 echo ""
 
+# Remount paths as read-write
+mount -o remount,rw /sys/fs/cgroup 2>/dev/null
+mount -o remount,rw /proc/sys 2>/dev/null
+mount -o remount,rw /sys 2>/dev/null
+
+# Set shm size to 1G to prevent cluster joining issue
+mount -o remount,size=1G /dev/shm
+
+# Add device nodes needed by PVE
+mkdir -p /dev/net /dev/mapper
+mknod /dev/kvm            c 10 232
+mknod /dev/fuse           c 10 229
+mknod /dev/net/tun        c 10 200
+mknod /dev/loop-control   c 10 237
+mknod /dev/mapper/control c 10 236
+chown root:kvm  /dev/kvm
+chown root:disk /dev/loop-control
+chmod 666 /dev/kvm /dev/zfs
+chmod 660 /dev/loop-control
+chmod 600 /dev/mapper/control
+
 # Update password for root
 printf 'root:%s\n' "$PASSWORD" | chpasswd
 
@@ -63,17 +84,6 @@ fi
 if [ -n "$KVM_ERR" ]; then
   error "KVM acceleration is not available $KVM_ERR, see the FAQ for possible causes."
   [[ "${DEBUG:-}" != [Yy1]* ]] && exit 19
-fi
-
-# Modify setting for LXC containers
-file="/lib/systemd/system/lxcfs.service"
-
-if grep -qE '^[[:space:]]*ConditionVirtualization' "$file"; then
-
-    # Comment the line if it is not already commented
-    sed -i '/^[[:space:]]*ConditionVirtualization/ {
-        /^[[:space:]]*#/! s/^[[:space:]]*/#/
-    }' "$file"
 fi
 
 # Check if Docker socket is available
