@@ -10,7 +10,6 @@ services:
     volumes:
       - ./storage:/var/lib/vz
       - ./config:/var/lib/pve-cluster
-      - /var/run/docker.sock:/var/run/docker.sock      
     privileged: true
     restart: on-failure
     stop_grace_period: 2m
