@@ -50,10 +50,6 @@ dhcp-option=vendor:MSFT,2,1i
 
 EOF
 
-  if ! systemctl enable dnsmasq; then
-    error "Failed to enable dnsmasq!" && return 1
-  fi
-
   return 0
 }
 
