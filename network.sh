@@ -116,7 +116,7 @@ configureNAT() {
   local ip base
   local tap="tap0"
   local gateway=""
-  local bridge="docker0"
+  local bridge="vmbr0"
   local mask="255.255.255.0"
 
   base=$(echo "$IP" | sed -r 's/([^.]*.){2}//')
