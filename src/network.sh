@@ -209,8 +209,6 @@ configureNAT() {
 
 closeBridge() {
 
-  [[ "$NETWORK" == [Nn]* ]] && return 0
-
   ip link set "$TAP" down promisc off &> /dev/null || true
   ip link delete "$TAP" &> /dev/null || true
 
