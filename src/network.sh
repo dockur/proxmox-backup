@@ -265,9 +265,24 @@ getInfo() {
     exit 29
   fi
 
+  local mtu=""
+
+  if [ -f "/sys/class/net/$DEV/mtu" ]; then
+    mtu=$(< "/sys/class/net/$DEV/mtu")
+  fi
+
+  [ -z "$MTU" ] && MTU="$mtu"
+  [ -z "$MTU" ] && MTU="0"
+
+  # Generate MAC address based on Docker container ID in hostname
+  HOST="$(hostname -s)"
+  MAC=$(echo "$HOST" | md5sum | sed 's/^\(..\)\(..\)\(..\)\(..\)\(..\).*$/02:\1:\2:\3:\4:\5/')
+  GATEWAY_MAC=$(echo "${MAC^^}" | md5sum | sed 's/^\(..\)\(..\)\(..\)\(..\)\(..\).*$/02:\1:\2:\3:\4:\5/')
+
   if [[ "$DEBUG" == [Yy1]* ]]; then
-    HOST="$(hostname -s)"
-    info "Host: $HOST  IP: $IP  Gateway: $GATEWAY  Interface: $DEV"
+    line="Host: $HOST  IP: $IP  Gateway: $GATEWAY  Interface: $DEV  MTU: $mtu"
+    [[ "$MTU" != "0" && "$MTU" != "$mtu" ]] && line+=" ($MTU)"
+    info "$line"
     if [ -f /etc/resolv.conf ]; then
       nameservers=$(grep '^nameserver*' /etc/resolv.conf | head -c -1 | sed 's/nameserver //g;' | sed -z 's/\n/, /g')
       [ -n "$nameservers" ] && info "Nameservers: $nameservers"
