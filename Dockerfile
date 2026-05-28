@@ -132,20 +132,6 @@ rm -rf /root/.gnupg
 # Configure LXC
 sed -i 's/^ConditionVirtualization=!container/#&/' /lib/systemd/system/lxcfs.service
 
-if [ "$TARGETARCH" = "arm64" ]; then
-
-  # Update arm64 LXC template
-  echo "pveam update 2>/dev/null" >> /etc/rc.local
-
-  # Remove unsupported amd64 turnkeylinux repo
-  echo "rm -f /var/lib/pve-manager/apl-info/releases.turnkeylinux.org" >> /etc/rc.local
-
-fi
-
-echo "" >> /etc/rc.local
-echo "exit 0" >> /etc/rc.local
-chmod +x /etc/rc.local
-
 # Remove kernel modules and boot files — useless in a container (~960 MB)
 rm -rf /usr/lib/modules /boot
 
