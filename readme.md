@@ -42,7 +42,6 @@ services:
     volumes:
       - ./storage:/var/lib/vz
       - ./config:/var/lib/pve-cluster
-      - /var/run/docker.sock:/var/run/docker.sock
     restart: always
     privileged: true
     stop_grace_period: 2m
@@ -51,7 +50,7 @@ services:
 ##### Via Docker CLI:
 
 ```bash
-docker run -it --rm --name proxmox --hostname pve --privileged -e "PASSWORD=root" -p 8006:8006 -v "${PWD:-.}/storage:/var/lib/vz" -v "${PWD:-.}/config:/var/lib/pve-cluster" -v "/var/run/docker.sock:/var/run/docker.sock" --stop-timeout 120 docker.io/dockurr/proxmox
+docker run -it --rm --name proxmox --hostname pve --privileged -e "PASSWORD=root" -p 8006:8006 -v "${PWD:-.}/storage:/var/lib/vz" -v "${PWD:-.}/config:/var/lib/pve-cluster" --stop-timeout 120 docker.io/dockurr/proxmox
 ```
 
 ##### Via Github Codespaces:
@@ -60,9 +59,9 @@ docker run -it --rm --name proxmox --hostname pve --privileged -e "PASSWORD=root
 
 ## Requirements 🛠️
 
+- Intel VT-x / AMD-V enabled
 - Modern Linux host with kernel 6.8+
 - [Docker Engine](https://docs.docker.com/engine/install/) (version 27+ recommended)
-- Intel VT-x / AMD-V enabled
 - macOS: Use [OrbStack](https://orbstack.dev/) instead of Docker Desktop
 - Windows 11 with Docker Desktop (WSL2):
    - WSL kernel version 6.6+ (`wsl --version`)
@@ -111,24 +110,6 @@ docker run -it --rm --name proxmox --hostname pve --privileged -e "PASSWORD=root
   ```
 
   Replace the example path `./config` with the desired storage folder or named volume.
-
-### How can I setup networking for the virtual machines?
-
-  DHCP is not implemented yet, so in the mean time you have to give your VM's a static IP address:
- 
-  - In the Proxmox web-interface, go to `Datacenter` -> `pve` --> `System` -> `Network`.
-  
-  - There is a `Linux Bridge` called `docker0`, look at the `IPv4/CIDR` column and remember its subnet, for example `172.20.0.0/16`
-
-  - Attach the `docker0` bridge network to your virtual machine, start that machine and view its screen.
- 
-  - Configure the OS for a static IP instead of DHCP, and give it a fixed address inside the subnet of the `docker0` bridge.
-
-    Always start from a value of `.100`, so for example pick `172.20.0.100` for the first machine if the subnet was `172.20.0.0/16`.
-
-    Set the gateway address to the first address within the subnet, so for example set it to `172.20.0.0` if the subnet was `172.20.0.0/16`.
-
-  - The virtual machine should now be connected to the internet!
 
 ### How do I verify if my system supports the KVM virtualization used by Proxmox?
 
