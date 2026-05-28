@@ -3,6 +3,7 @@ set -Eeuo pipefail
 
 # Docker environment variables
 
+: "${DEV:=""}"
 : "${MTU:=""}"
 : "${TAP:="tap0"}"
 : "${NETWORK:="Y"}"
@@ -22,7 +23,7 @@ configureDNS() {
   local mask="$3"
   local gateway="$4"
 
-  cat >"/etc/dnsmasq.d/$fa.conf" <<EOF
+  cat >"/etc/dnsmasq.d/$fa.conf" <<-EOF
 
   # Listen only on bridge
   interface=$fa
@@ -30,7 +31,7 @@ configureDNS() {
   except-interface=lo
 
   # IPv4 DHCP range
-  dhcp-range=set:$fa,$ip,${ip%.*}.255
+  dhcp-range=set:$fa,$ip,${ip%.*}.254
 
   # Set gateway address
   dhcp-option=option:netmask,$mask
@@ -221,8 +222,6 @@ closeBridge() {
 
 getInfo() {
 
-  DEV=""
-
   if [ -z "$DEV" ]; then
     # Give Kubernetes priority over the default interface
     [ -d "/sys/class/net/net0" ] && DEV="net0"
@@ -284,7 +283,7 @@ getInfo() {
     [[ "$MTU" != "0" && "$MTU" != "$mtu" ]] && line+=" ($MTU)"
     info "$line"
     if [ -f /etc/resolv.conf ]; then
-      nameservers=$(grep '^nameserver*' /etc/resolv.conf | head -c -1 | sed 's/nameserver //g;' | sed -z 's/\n/, /g')
+      nameservers=$(grep '^nameserver ' /etc/resolv.conf | sed 's/^nameserver //' | paste -sd ',' | sed 's/,/, /g')
       [ -n "$nameservers" ] && info "Nameservers: $nameservers"
     fi
     echo
