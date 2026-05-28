@@ -11,13 +11,17 @@
 
 </div></h1>
 
-Proxmox inside a Docker container.
+Proxmox VE inside a Docker container. Learn, test, break, and repeat.
 
 ## Features ✨
 
- - Fast virtual machines
- - Isolated LXC containers
- - Web-based management interface
+- **Fast iteration** — Spin up, tear down, repeat in seconds
+- **Cluster simulation** — Test live migration, clustering, and multi-node management
+- **Automation testing** — Validate Terraform, Ansible, or scripts
+- **Shared storage** — Mount ISOs, backups, and disk images across all nodes
+- **Dual-Stack Networking** — IPv4 and IPv6 support with pre-configured NAT bridges
+- **KVM & LXC ready** — Virtual machines and containers work out of the box
+- **ARM64 support** — Proxmox VE on your favorite ARM platform, powered by [PXVIRT](https://docs.pxvirt.lierfang.com/en/README.html)
 
 ## Usage  🐳
 
@@ -51,6 +55,16 @@ docker run -it --rm --name proxmox --hostname pve --privileged -e "PASSWORD=root
 ##### Via Github Codespaces:
 
 [![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/dockur/proxmox)
+
+## Requirements 🛠️
+
+- Modern Linux host with kernel 6.8+
+- [Docker Engine](https://docs.docker.com/engine/install/) (version 27+ recommended)
+- Intel VT-x / AMD-V enabled
+- macOS: Use [OrbStack](https://orbstack.dev/) instead of Docker Desktop
+- Windows 11 with Docker Desktop (WSL2):
+   - WSL kernel version 6.6+ (`wsl --version`)
+   - Nested virtualization enabled in WSL Settings
 
 ## Screenshots 📸
 
@@ -98,6 +112,8 @@ docker run -it --rm --name proxmox --hostname pve --privileged -e "PASSWORD=root
 
 ### How can I setup networking for the virtual machines?
 
+  DHCP is not implemented yet, so in the mean time you have to give your VM's a static IP address:
+ 
   - In the Proxmox web-interface, go to `Datacenter` -> `pve` --> `System` -> `Network`.
   
   - There is a `Linux Bridge` called `docker0`, look at the `IPv4/CIDR` column and remember its subnet, for example `172.20.0.0/16`
