@@ -72,36 +72,39 @@ setInterfaces() {
 
   local fa="$1"
   local tap="$2"
-  local subnet="$3"
-  local gateway="$4"
+  local gateway="$3"
 
   # Add all available network interfaces
   local file="/etc/network/interfaces.new"
 
-  echo "auto lo" > "$file"
-  echo "iface lo inet loopback" >> "$file"
+  cat > "$file" <<-EOF
+	auto lo
+	iface lo inet loopback
+EOF
 
   while IFS= read -r i; do
 
-    [[ "${i,,}" == "${fa,,}" ]] && continue
-    [[ "${i,,}" == "${tap,,}" ]] && continue
+	[[ "${i,,}" == "${fa,,}" ]] && continue
+	[[ "${i,,}" == "${tap,,}" ]] && continue
 
-    echo "" >> "$file"
-    echo "auto $i" >> "$file"
-    echo "iface $i inet manual" >> "$file"
+	cat >> "$file" <<-EOF
 
-  done <<< $(ip -o link show | awk -F': ' '{print $2}' | grep -v lo | sed 's/@.*//')
+		auto $i
+		iface $i inet manual
+EOF
 
-  echo "" >> "$file"
+  done < <(ip -o link show | awk -F': ' '{print $2}' | grep -v lo | sed 's/@.*//')
 
   # Configure bridge
-  echo "auto $fa" >> "$file"
-  echo "iface $fa inet static" >> "$file"
-  echo "        address $subnet" >> "$file"
-  echo "        bridge-ports $tap" >> "$file"
-  echo "        bridge-stp off" >> "$file"
-  echo "        bridge-fd 0" >> "$file"
-  echo "" >> "$file"
+  cat >> "$file" <<-EOF
+	
+	auto $fa
+	iface $fa inet static
+		address $gateway/24
+		bridge-ports $tap
+		bridge-stp off
+		bridge-fd 0
+EOF
 
   return 0
 }
@@ -180,7 +183,7 @@ configureNAT() {
     gateway="${ip%.*}.2"
   fi
 
-  local subnet="$gateway/24"
+  local subnet="${ip%.*}.0/24"
   local broadcast="${ip%.*}.255"
 
   # Create a bridge with a static IP for the VM guests
@@ -190,7 +193,7 @@ configureNAT() {
     error "failed to create bridge. $ADD_ERR --cap-add NET_ADMIN" && return 1
   fi
 
-  if ! ip address add "$subnet" broadcast "$broadcast" dev "$BRIDGE"; then
+  if ! ip address add "$gateway/24" broadcast "$broadcast" dev "$BRIDGE"; then
     error "failed to add IP address pool!" && return 1
   fi
 
@@ -241,8 +244,8 @@ configureNAT() {
     error "failed to configure IP tables!" && return 1
   fi
 
+  setInterfaces "$BRIDGE" "$TAP" "$gateway" || return 1
   configureDNS "$BRIDGE" "$ip" "$MASK" "$gateway" || return 1
-  setInterfaces "$BRIDGE" "$TAP" "$subnet" "$gateway" || return 1
 
   return 0
 }
