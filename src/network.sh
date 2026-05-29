@@ -269,7 +269,7 @@ getInfo() {
     [ -n "$IP6" ] && IP6=$(echo "$IP6" | sed -e's/^.*inet6 \([^ ]*\)\/.*$/\1/;t;d' | head -n 1)
   fi
 
-  local result nic bus
+  local result bus
   result=$(ethtool -i "$DEV")
   bus=$(grep -m 1 -i 'bus-info:' <<< "$result" | awk '{print $(2)}')
 
