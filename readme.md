@@ -60,7 +60,6 @@ docker run -it --rm --name proxmox --hostname pve --privileged -e "PASSWORD=root
 - Intel VT-x / AMD-V enabled
 - Modern Linux host with kernel 6.8+
 - [Docker Engine](https://docs.docker.com/engine/install/) (version 27+ recommended)
-- macOS: Use [OrbStack](https://orbstack.dev/) instead of Docker Desktop
 - Windows 11 with Docker Desktop (WSL2):
    - WSL kernel version 6.6+ (`wsl --version`)
    - Nested virtualization enabled in WSL Settings
