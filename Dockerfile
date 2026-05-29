@@ -188,15 +188,15 @@ rm -rf \
 echo "root:root" | chpasswd
 
 # Store version number
-echo "$VERSION_ARG" > /run/version
+echo "$VERSION_ARG" > /usr/local/bin/version
 
 # Cleanup files
 rm -rf /tmp/* /var/tmp/* /var/lib/apt/lists/*
 
 EOF
 
-WORKDIR /run
-COPY --chmod=755 ./src /run/
+WORKDIR /usr/local/bin
+COPY --chmod=755 ./src /usr/local/bin/
 
 ENV PASSWORD="root"
 
@@ -209,5 +209,5 @@ STOPSIGNAL SIGRTMIN+3
 HEALTHCHECK --interval=60s --timeout=10s --start-period=60s --retries=3 \
   CMD curl -kLfSs http://localhost:8006 >/dev/null || exit 1
 
-ENTRYPOINT ["/run/entrypoint.sh"]
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 CMD ["/sbin/init", "--log-target=console", "--log-level=notice"]
