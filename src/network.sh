@@ -43,26 +43,26 @@ configureDNS() {
 
   cat >"/etc/dnsmasq.d/$fa.conf" <<-EOF
 
-		# Listen only on bridge
-		interface=$fa
-		bind-interfaces
-		except-interface=lo
+        # Listen only on bridge
+        interface=$fa
+        bind-interfaces
+        except-interface=lo
 
-		# IPv4 DHCP ranges
-		$ranges
+        # IPv4 DHCP ranges
+        $ranges
 
-		# Set gateway address
-		dhcp-option=option:netmask,$mask
-		dhcp-option=option:router,$gateway
-		dhcp-option=option:dns-server,$gateway
-		address=/host.lan/$gateway
+        # Set gateway address
+        dhcp-option=option:netmask,$mask
+        dhcp-option=option:router,$gateway
+        dhcp-option=option:dns-server,$gateway
+        address=/host.lan/$gateway
 
-		# DHCP settings
-		dhcp-authoritative
+        # DHCP settings
+        dhcp-authoritative
 
-		# Windows compatibility
-		dhcp-option=252,"\n"
-		dhcp-option=vendor:MSFT,2,1i
+        # Windows compatibility
+        dhcp-option=252,"\n"
+        dhcp-option=vendor:MSFT,2,1i
 EOF
 
   return 0
@@ -78,32 +78,32 @@ setInterfaces() {
   local file="/etc/network/interfaces.new"
 
   cat > "$file" <<-EOF
-	auto lo
-	iface lo inet loopback
+    auto lo
+    iface lo inet loopback
 EOF
 
   while IFS= read -r i; do
 
-	[[ "${i,,}" == "${fa,,}" ]] && continue
-	[[ "${i,,}" == "${tap,,}" ]] && continue
+    [[ "${i,,}" == "${fa,,}" ]] && continue
+    [[ "${i,,}" == "${tap,,}" ]] && continue
 
-	cat >> "$file" <<-EOF
+    cat >> "$file" <<-EOF
 
-		auto $i
-		iface $i inet manual
+        auto $i
+        iface $i inet manual
 EOF
 
   done < <(ip -o link show | awk -F': ' '{print $2}' | grep -v lo | sed 's/@.*//')
 
   # Configure bridge
   cat >> "$file" <<-EOF
-	
-	auto $fa
-	iface $fa inet static
-		address $gateway/24
-		bridge-ports $tap
-		bridge-stp off
-		bridge-fd 0
+
+    auto $fa
+    iface $fa inet static
+        address $gateway/24
+        bridge-ports $tap
+        bridge-stp off
+        bridge-fd 0
 EOF
 
   return 0
