@@ -165,7 +165,6 @@ rm -rf \
   /usr/share/grub \
   /usr/share/groff \
   /usr/share/mime \
-  /usr/share/doc \
   /usr/share/man
 
 # Set username and password
