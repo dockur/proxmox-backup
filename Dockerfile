@@ -106,8 +106,12 @@ apt-get install -y --no-install-recommends \
 rm -f /etc/apt/sources.list.d/pve-enterprise.list \
       /etc/apt/sources.list.d/pve-enterprise.sources \
       /etc/apt/sources.list.d/ceph.list \
-      /etc/apt/sources.list.d/ceph.sources
+      /etc/apt/sources.list.d/ceph.source
 
+# Disable subscription nag
+echo "DPkg::Post-Invoke { \"dpkg -V proxmox-widget-toolkit | grep -q '/proxmoxlib\.js$'; if [ \$? -eq 1 ]; then { sed -i '/.*data\.status.*{/{s/\!//;s/active/NoMoreNagging/}' /usr/share/javascript/proxmox-widget-toolkit/proxmoxlib.js; }; fi\"; };" >/etc/apt/apt.conf.d/no-nag-script
+apt --reinstall install proxmox-widget-toolkit &>/dev/null
+     
 # Cleanup
 apt-get remove -y os-prober >/dev/null
 apt-get autoremove -y
