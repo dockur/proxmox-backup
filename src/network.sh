@@ -22,6 +22,24 @@ configureDNS() {
   local ip="$2"
   local mask="$3"
   local gateway="$4"
+  local base="${ip%.*}"
+  local ip_last="${ip##*.}"
+  local gw_last="${gateway##*.}"
+
+  # Determine the sorted positions of the two excluded IPs
+  local low high
+  if (( ip_last < gw_last )); then
+    low=$ip_last; high=$gw_last
+  else
+    low=$gw_last; high=$ip_last
+  fi
+
+  # Build dhcp-range lines, splitting the pool around $ip and $gateway.
+  local ranges=""
+  (( low > 1 )) && ranges+="dhcp-range=set:${fa},${base}.1,${base}.$((low - 1))"$'\n'
+  (( high - low > 1 )) && ranges+="dhcp-range=set:${fa},${base}.$((low + 1)),${base}.$((high - 1))"$'\n'
+  (( high < 254 )) && ranges+="dhcp-range=set:${fa},${base}.$((high + 1)),${base}.254"$'\n'
+  ranges="${ranges%$'\n'}"  # strip trailing newline
 
   cat >"/etc/dnsmasq.d/$fa.conf" <<-EOF
 
@@ -30,10 +48,8 @@ configureDNS() {
 		bind-interfaces
 		except-interface=lo
 
-		# IPv4 DHCP range
-		dhcp-range=set:$fa,${ip%.*}.1,${ip%.*}.254
-		dhcp-host=$ip
-		dhcp-host=$gateway
+		# IPv4 DHCP ranges
+		$ranges
 
 		# Set gateway address
 		dhcp-option=option:netmask,$mask
@@ -47,7 +63,6 @@ configureDNS() {
 		# Windows compatibility
 		dhcp-option=252,"\n"
 		dhcp-option=vendor:MSFT,2,1i
-
 EOF
 
   return 0
