@@ -29,13 +29,13 @@ apt-get clean
 rm -rf /var/lib/apt/lists/*
 
 # Add Proxmox archive keyring
-if [ "${TARGETARCH}" = "amd64" ]; then
+if [[ "$TARGETARCH" == "amd64" ]]; then
   KEY_URL="https://enterprise.proxmox.com/debian/proxmox-archive-keyring-trixie.gpg"
   KEY_PATH="/usr/share/keyrings/proxmox-archive-keyring.gpg"
   URI="http://download.proxmox.com/debian/pve"
   SUITE="trixie"
   COMPONENT="pve-no-subscription"
-elif [ "${TARGETARCH}" = "arm64" ]; then
+elif [[ "$TARGETARCH" == "arm64" ]]; then
   KEY_URL="https://mirrors.lierfang.com/pxcloud/lierfang.gpg"
   KEY_PATH="/etc/apt/trusted.gpg.d/lierfang.gpg"
   URI="https://mirrors.lierfang.com/pxcloud/pxvirt"
@@ -76,7 +76,7 @@ mkdir -p /usr/share/doc/pve-manager
 touch /usr/share/doc/pve-manager/aplinfo.dat
 
 # Pin ifupdown2 to the Proxmox repo — pve-manager checks for their patched version
-if [[ "${TARGETARCH}" != "arm64" ]]; then
+if [[ "$TARGETARCH" == "amd64" ]]; then
   PVE_ORIGIN="download.proxmox.com"
 else
   PVE_ORIGIN="mirrors.lierfang.com"
@@ -109,9 +109,12 @@ rm -f /etc/apt/sources.list.d/pve-enterprise.list \
       /etc/apt/sources.list.d/ceph.source
 
 # Disable subscription nag
-echo "DPkg::Post-Invoke { \"dpkg -V proxmox-widget-toolkit | grep -q '/proxmoxlib\.js$'; if [ \$? -eq 1 ]; then { sed -i '/.*data\.status.*{/{s/\!//;s/active/NoMoreNagging/}' /usr/share/javascript/proxmox-widget-toolkit/proxmoxlib.js; }; fi\"; };" >/etc/apt/apt.conf.d/no-nag-script
-apt --reinstall install proxmox-widget-toolkit &>/dev/null
-     
+if [[ "$TARGETARCH" == "amd64" ]]; then
+  wget https://github.com/Jamesits/pve-fake-subscription/releases/download/v0.0.11/pve-fake-subscription_0.0.11+git-1_all.deb -O /tmp/sub.deb -q --timeout=10
+  sudo apt install ./tmp/sub.deb && rm -f /tmp/sub.deb
+  echo "127.0.0.1 shop.maurer-it.com" | sudo tee -a /etc/hosts
+fi
+
 # Cleanup
 apt-get remove -y os-prober >/dev/null
 apt-get autoremove -y
