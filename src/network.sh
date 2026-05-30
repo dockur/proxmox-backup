@@ -115,7 +115,7 @@ EOF
 
     source /etc/network/interfaces.d/*
 EOF
-| sed 's/^    //' >> "$file"
+} | sed 's/^    //' >> "$file"
 
   cat "$file" && sleep 5
   return 0
