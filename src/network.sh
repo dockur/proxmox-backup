@@ -25,6 +25,7 @@ configureDNS() {
   local base="${ip%.*}"
   local ip_last="${ip##*.}"
   local gw_last="${gateway##*.}"
+  local file="/etc/dnsmasq.d/$fa.conf"
 
   # Determine the sorted positions
   local low high
@@ -41,30 +42,32 @@ configureDNS() {
   (( high < 254 )) && ranges+="dhcp-range=set:${fa},${base}.$((high + 1)),${base}.254"$'\n'
   ranges="${ranges%$'\n'}"  # strip trailing newline
 
-  cat >"/etc/dnsmasq.d/$fa.conf" <<-EOF
+  cat <<EOF
 
-        # Listen only on bridge
-        interface=$fa
-        bind-interfaces
-        except-interface=lo
+    # Listen only on bridge
+    interface=$fa
+    bind-interfaces
+    except-interface=lo
 
-        # IPv4 DHCP ranges
-        $ranges
+    # IPv4 DHCP ranges
+    $ranges
 
-        # Set gateway address
-        dhcp-option=option:netmask,$mask
-        dhcp-option=option:router,$gateway
-        dhcp-option=option:dns-server,$gateway
-        address=/host.lan/$gateway
+    # Set gateway address
+    dhcp-option=option:netmask,$mask
+    dhcp-option=option:router,$gateway
+    dhcp-option=option:dns-server,$gateway
+    address=/host.lan/$gateway
 
-        # DHCP settings
-        dhcp-authoritative
+    # DHCP settings
+    dhcp-authoritative
 
-        # Windows compatibility
-        dhcp-option=252,"\n"
-        dhcp-option=vendor:MSFT,2,1i
+    # Windows compatibility
+    dhcp-option=252,"\n"
+    dhcp-option=vendor:MSFT,2,1i
 EOF
+} | sed 's/^    //' > "$file"
 
+  cat "$file" && sleep 5
   return 0
 }
 
@@ -77,25 +80,30 @@ setInterfaces() {
   # Add all available network interfaces
   local file="/etc/network/interfaces.new"
 
-  cat <<EOF | sed 's/^    //g' > "$file"
+{
+  cat <<EOF
     auto lo
     iface lo inet loopback
 EOF
+} | sed 's/^    //' > "$file"
 
   while IFS= read -r i; do
 
     [[ "${i,,}" == "${fa,,}" ]] && continue
 
-    cat <<EOF | sed 's/^        //g' > "$file"
+{
+    cat <<EOF
 
         auto $i
         iface $i inet manual
 EOF
+} | sed 's/^        //' >> "$file"
 
   done < <(ip -o link show | awk -F': ' '{print $2}' | grep -v lo | sed 's/@.*//')
 
   # Configure bridge
-  cat <<EOF | sed 's/^    //g' > "$file"
+{
+  cat <<EOF
 
     auto $fa
     iface $fa inet static
@@ -106,7 +114,9 @@ EOF
 
     source /etc/network/interfaces.d/*
 EOF
+| sed 's/^    //' >> "$file"
 
+  cat "$file" && sleep 5
   return 0
 }
 
