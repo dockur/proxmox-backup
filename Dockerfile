@@ -135,15 +135,10 @@ apt-get autoremove -y
 apt-get clean
 
 # Mask unneeded services
+ln -sf /dev/null /etc/systemd/system/kbrequest.target
 ln -sf /dev/null /etc/systemd/system/watchdog-mux.service
 ln -sf /dev/null /etc/systemd/system/ifupdown2-pre.service
 ln -sf /dev/null /etc/systemd/system/systemd-networkd-wait-online.service
-
-# Create keyboard request target
-cat >/etc/systemd/system/kbrequest.target <<KBR
-[Unit]
-Description=Keyboard Request Target
-KBR
 
 systemctl daemon-reload
 # Add keyring for pveam
