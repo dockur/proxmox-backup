@@ -145,7 +145,7 @@ ExecStart=
 ExecStart=/bin/true
 SRV
 
-# Fix lxcfs.service to surpress error during shutdown
+# Fix lxcfs.service to suppress error during shutdown
 mkdir -p /etc/systemd/system/lxcfs.service.d
 cat > /etc/systemd/system/lxcfs.service.d/override.conf <<CFS
 [Service]
