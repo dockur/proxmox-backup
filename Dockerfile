@@ -146,7 +146,7 @@ ExecStart=/bin/true
 SRV
 
 # Add keyring for pveam
-gpg --keyserver keyserver.uuntu.com --recv-keys \
+gpg --keyserver keyserver.ubuntu.com --recv-keys \
     A7BCD1420BFE778E \
     85C25E95A16EB94D \
     39DE63C7D57A32124785E63DB859507D6B1F46D3
