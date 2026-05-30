@@ -147,8 +147,18 @@ SRV
 mkdir -p /etc/systemd/system/lxcfs.service.d
 cat > /etc/systemd/system/lxcfs.service.d/override.conf <<CFS
 [Service]
+# Prevent systemd from trying to supervise shutdown cleanup
 ExecStop=
 ExecStop=/bin/true
+
+# Avoid waiting for FUSE teardown (important in Docker shutdown race)
+TimeoutStopSec=1
+
+# Prevent systemd from aggressively killing after ExecStop
+KillMode=control-group
+
+# Ensure stop never propagates failure from internal cleanup
+SuccessExitStatus=0 143
 CFS
 
 # Add keyring for pveam
