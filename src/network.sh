@@ -252,9 +252,9 @@ configureNAT() {
 
 blockLicense() {
 
-  # Disable connections to license server
-  echo "127.0.0.1 shop.maurer-it.com" >> /etc/hosts
-
+  # Disable connections to license server (idempotent; cover IPv4 + IPv6)
+  grep -qE '^[[:space:]]*127\.0\.0\.1[[:space:]]+shop\.maurer-it\.com([[:space:]]|$)' /etc/hosts 2>/dev/null || echo "127.0.0.1 shop.maurer-it.com" >> /etc/hosts 2>/dev/null || true
+  grep -qE '^[[:space:]]*::1[[:space:]]+shop\.maurer-it\.com([[:space:]]|$)' /etc/hosts 2>/dev/null || echo "::1 shop.maurer-it.com" >> /etc/hosts 2>/dev/null || true
   return 0
 }
 
