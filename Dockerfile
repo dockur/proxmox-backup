@@ -120,8 +120,8 @@ fi
 apt-mark hold proxmox-ve
 
 # Cleanup
-export SUDO_FORCE_REMOVE=yes
-apt-get remove -y sudo os-prober
+apt-get remove -y os-prober >/dev/null
+SUDO_FORCE_REMOVE=yes apt-get remove -y sudo
 apt-get autoremove -y
 apt-get clean
 
