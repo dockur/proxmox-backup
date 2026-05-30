@@ -248,6 +248,14 @@ configureNAT() {
   return 0
 }
 
+disableLicense() {
+ 
+  # Disable connections to license server
+  echo "127.0.0.1 shop.maurer-it.com" >> /etc/hosts
+
+  return 0
+}
+
 closeBridge() {
 
   ip link set "$TAP" down promisc off &> /dev/null || true
@@ -331,6 +339,8 @@ getInfo() {
 # ######################################
 #  Configure Network
 # ######################################
+
+disableLicense
 
 [[ "$NETWORK" == [Nn]* ]] && return 0
 
