@@ -103,6 +103,8 @@ EOF
         bridge-ports $tap
         bridge-stp off
         bridge-fd 0
+
+    source /etc/network/interfaces.d/*
 EOF
 
   return 0
