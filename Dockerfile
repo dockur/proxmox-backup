@@ -66,8 +66,7 @@ dpkg-divert --local --rename --add /usr/sbin/update-initramfs
 printf '#!/bin/sh\nexit 0\n' > /usr/sbin/update-initramfs
 chmod +x /usr/sbin/update-initramfs
 dpkg-divert --local --rename --add /usr/sbin/ifreload
-printf '#!/bin/sh\n[ "$1" = "-V" ] && printf "%%s\n" "info: executing /usr/bin/dpkg -l ifupdown2" \
-"ifupdown2:3.3.0-1+pmx12"\nexit 0\n' > /usr/sbin/ifreload
+printf '#!/bin/sh\n[ "$1" = "-V" ] && printf "%%s\n" "ifupdown2:3.3.0-1+pmx12"\nexit 0\n' > /usr/sbin/ifreload
 chmod +x /usr/sbin/ifreload
 printf '#!/bin/sh\nexit 0\n' > /usr/local/sbin/systemctl
 chmod +x /usr/local/sbin/systemctl
