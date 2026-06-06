@@ -34,6 +34,7 @@ services:
     container_name: proxmox
     environment:
       PASSWORD: "root"
+      TZ: "America/New_York"
     ports:
       - 8006:8006
     volumes:
