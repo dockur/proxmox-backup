@@ -28,6 +28,8 @@ rm -rf /tmp/* /var/tmp/* /var/lib/apt/lists/*
 
 EOF
 
+COPY --chmod=755 ./src/entrypoint.sh /runit/
+
 EXPOSE 8007
 STOPSIGNAL SIGHUP
 
