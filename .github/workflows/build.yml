@@ -21,31 +21,59 @@ jobs:
       packages: write
       contents: read
     steps:
-      -
-        name: Get remote package data
+      - 
+        name: Run graphql query to get tag
+        uses: octokit/graphql-action@v3.x
+        id: latest_tag
+        with:
+          variables: |
+            repo: pve-backup-server-dockerfiles
+            owner: ayufan
+          query: |
+            query tag($owner: String!, $repo: String!) {
+              repository(owner: $owner, name: $repo) {
+                refs(refPrefix: "refs/tags/", last: 1, orderBy: {field: TAG_COMMIT_DATE, direction: ASC}) {
+                  edges {
+                    node {
+                      name
+               } } } } }
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - 
+        name: Parse tag from query output
         run: |
-          set -e -o pipefail
-          latest_tag=$(curl -fsSL https://metadata.cdn.proxmox.com/download/changelogs/pve/dists/trixie/pve-no-subscription/p/pve-manager/ | grep -oP 'pve-manager_\K[0-9]+\.[0-9]+\.[0-9]+(?=\.changelog)' | sort -V | tail -1)
+          #!/bin/bash
+          latest_tag=$(echo '${{ steps.latest_tag.outputs.data }}' | jq '.repository.refs.edges[][].name' -r)
+          [ -z "$latest_tag" ] && echo "Tag not found!" && exit 1
+          [[ "$latest_tag" == "null" ]] && echo "Tag not found!" && exit 1
+          [[ "$latest_tag" = v* ]] && latest_tag="${latest_tag:1}"
           echo "Found tag: \"${latest_tag}\""
           latest_version="${latest_tag%-*}"
           major="${latest_version%%.*}"
           minor="${latest_version#*.}"
           minor="${minor%%.*}"
           echo "latest_tag=$latest_tag" >> $GITHUB_ENV
-          echo "latest_version=$latest_version" >> $GITHUB_ENV
           echo "latest_minor=$major.$minor" >> $GITHUB_ENV
-          echo "latest_major=$major" >> $GITHUB_ENV
       - 
         name: Check if the tag exists locally
         uses: action-pack/tag-exists@v1
         id: checkTag
         with: 
-          tag: 'v${{ env.latest_tag }}'         
+          tag: 'v${{ env.latest_tag }}'
       -
         name: Finish when found
         run: |
           #!/bin/bash
+          beta="false"
+          
           val="${{ steps.checkTag.outputs.exists }}"
+
+          [[ "${{ env.latest_tag }}" == *"rc"* ]] && beta="true"
+          [[ "${{ env.latest_tag }}" == *"beta"* ]] && beta="true"
+          [[ "${{ env.latest_tag }}" == *"test"* ]] && beta="true" && val="true"
+          [[ "${{ env.latest_tag }}" == *"alpha"* ]] && beta="true" && val="true"
+
+          echo "beta=${beta}" >> $GITHUB_ENV
           echo "exists=${val}" >> $GITHUB_ENV
       -
         name: Checkout
@@ -53,6 +81,7 @@ jobs:
         uses: actions/checkout@v6
         with:
           fetch-depth: 0
+          ref: '${{ env.branch }}'
       -
         name: Docker metadata
         if: env.exists == 'false'
