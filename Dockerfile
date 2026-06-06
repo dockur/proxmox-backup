@@ -16,17 +16,6 @@ RUN <<EOF
 
 # Break on errors
 set -Eeuo pipefail
-apt-get update
-
-# Install prerequisites
-apt-get --no-install-recommends -y install \
-  curl \
-  iputils-ping \
-  ca-certificates
-
-# Cleanup
-apt-get autoremove -y
-apt-get clean
 
 # Store version number
 echo "$VERSION_ARG" > /etc/version
