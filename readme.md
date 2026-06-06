@@ -15,7 +15,7 @@ Proxmox Backup Server inside a Docker container.
 
 ## Features ✨
 
-- **Incremental Backups** — After an initial full backup, PBS performs incremental backups, where only changes (deltas) made since the last backup are stored.
+- **Incremental Backups** — Performs incremental backups, where only changes (deltas) made since the last backup are stored.
 - **Global deduplication** — This means that all identical data blocks are stored only once.
 - **Efficient restores** — You can restore entire VMs, containers, or even specific files from backups.
 - **Storage flexibility** — Offers a variety of storage options, including local storage, network-attached storage (NAS), and cloud-based storage.
