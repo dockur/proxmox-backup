@@ -15,12 +15,12 @@ Proxmox Backup Server inside a Docker container.
 
 ## Features ✨
 
-- **High-performance** — Identically to bare-metal thanks to KVM acceleration
-- **Fast iteration** — Spin up or tear down a PVE node quickly within seconds
-- **Easy backups** — Stores all your configuration in a volume mount
-- **Simple networking** — Comes with a pre-configured NAT bridge with DHCP
-- **LXC supported** — LXC containers work out of the box
-- **Multi-platform** — Support for ARM64 processors via PXVIRT
+- **Incremental Backups** — After an initial full backup, PBS performs incremental backups, where only changes (deltas) made since the last backup are stored.
+- **Global deduplication** — This means that all identical data blocks are stored only once.
+- **Efficient restores** — You can restore entire VMs, containers, or even specific files from backups.
+- **Storage flexibility** — Offers a variety of storage options, including local storage, network-attached storage (NAS), and cloud-based storage.
+- **Backup and restore from Proxmox VE** — Tight integration with Proxmox VE, allowing you to manage and schedule backups directly from the Proxmox web interface. 
+- **Web interface and REST API** — Provides a web-based management interface that allows administrators to monitor backup jobs, configure schedules, and manage restore operations.
 
 ## Usage  🐳
 
@@ -28,20 +28,24 @@ Proxmox Backup Server inside a Docker container.
 
 ```yaml
 services:
-  proxmox:
-    hostname: pve
-    image: dockurr/proxmox
-    container_name: proxmox
+  pbs:
+    hostname: pbs
+    container_name: pbs
+    image: dockurr/proxmox-backup
     environment:
       PASSWORD: "root"
       TZ: "America/New_York"
     ports:
-      - 8006:8006
+      - 8007:8007
     volumes:
-      - ./storage:/var/lib/vz
-      - ./config:/var/lib/pve-cluster
+      - ./config:/etc/proxmox-backup
+      - ./logs:/var/log/proxmox-backup
+      - ./data:/var/lib/proxmox-backup
+    tmpfs:
+      - /run
+    cap_add:
+      - SYS_RAWIO
     restart: always
-    privileged: true
     stop_grace_period: 2m
 ```
 
