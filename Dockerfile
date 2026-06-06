@@ -17,6 +17,9 @@ RUN <<EOF
 # Break on errors
 set -Eeuo pipefail
 
+# Set username and password
+echo "root:root" | chpasswd
+
 # Store version number
 echo "$VERSION_ARG" > /etc/version
 
