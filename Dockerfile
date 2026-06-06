@@ -34,6 +34,7 @@ EXPOSE 8007
 STOPSIGNAL SIGHUP
 
 VOLUME /etc/proxmox-backup
+VOLUME /var/log/proxmox-backup
 VOLUME /var/lib/proxmox-backup
 
 HEALTHCHECK --interval=60s --timeout=10s --start-period=60s --retries=3 \
