@@ -17,7 +17,6 @@ Proxmox Backup Server inside a Docker container.
 
 - **Incremental Backups** — Only the changes (deltas) made since the last backup are stored.
 - **Global deduplication** — To save space identical data blocks are always stored only once.
-- **Efficient restores** — You can restore entire VMs, containers, or even specific files from backups.
 - **Storage flexibility** — Offers a variety of storage options, including local storage, network-attached storage (NAS), and cloud-based storage.
 - **Integrated with Proxmox VE** — Tight integration with [Proxmox VE](https://github.com/dockur/proxmox), allowing you to manage and schedule backups directly from the Proxmox web interface. 
 - **Web interface and REST API** — Provides a web-based management interface that allows administrators to monitor backup jobs, configure schedules, and manage restore operations.
