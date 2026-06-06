@@ -52,6 +52,7 @@ jobs:
           major="${latest_version%%.*}"
           minor="${latest_version#*.}"
           minor="${minor%%.*}"
+          echo "latest_major=$major" >> $GITHUB_ENV
           echo "latest_tag=$latest_tag" >> $GITHUB_ENV
           echo "latest_minor=$major.$minor" >> $GITHUB_ENV
       - 
@@ -96,7 +97,7 @@ jobs:
             type=raw,value=latest,priority=100
             type=raw,value=${{ env.latest_major }},priority=250
             type=raw,value=${{ env.latest_minor }},priority=350
-            type=raw,value=${{ env.latest_version }},priority=450
+            type=raw,value=${{ env.latest_tag }},priority=450
           labels: |
             org.opencontainers.image.title=${{ vars.NAME }}
         env:
