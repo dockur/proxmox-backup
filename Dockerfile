@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 
 ARG VERSION_ARG="latest"
-FROM ayufan/proxmox-backup-server:${VERSION_ARG} AS base
+FROM ayufan/proxmox-backup-server:v${VERSION_ARG} AS base
 
 ARG TARGETARCH
 ARG VERSION_ARG="0.0"
