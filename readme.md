@@ -37,14 +37,12 @@ services:
       TZ: "America/New_York"
     ports:
       - 8007:8007
+    tmpfs:
+      - /run
     volumes:
       - ./config:/etc/proxmox-backup
       - ./logs:/var/log/proxmox-backup
       - ./data:/var/lib/proxmox-backup
-    tmpfs:
-      - /run
-    cap_add:
-      - SYS_RAWIO
     restart: always
     stop_grace_period: 2m
 ```
@@ -52,7 +50,7 @@ services:
 ##### Via Docker CLI:
 
 ```bash
-docker run -it --rm --name proxmox --hostname pve --privileged -e "PASSWORD=root" -p 8006:8006 -v "${PWD:-.}/storage:/var/lib/vz" -v "${PWD:-.}/config:/var/lib/pve-cluster" --stop-timeout 120 docker.io/dockurr/proxmox
+docker run -it --rm --name pbs --hostname pbs -e "PASSWORD=root" -e "TZ=root"-p 8006:8006 -v "${PWD:-.}/storage:/var/lib/vz" -v "${PWD:-.}/config:/var/lib/pve-cluster" --stop-timeout 120 docker.io/dockurr/proxmox
 ```
 
 ##### Via Github Codespaces:
@@ -63,7 +61,7 @@ docker run -it --rm --name proxmox --hostname pve --privileged -e "PASSWORD=root
 
 - Intel VT-x / AMD-V enabled
 - Modern Linux host with kernel 6.8+
-- [Docker Engine](https://docs.docker.com/engine/install/) (version 27+ recommended)
+- [Docker Engine](https://docs.docker.com/engine/install/) (version 27 + recommended)
 - Windows 11 with Docker Desktop (WSL2):
    - WSL kernel version 6.6+ (`wsl --version`)
    - Nested virtualization enabled in WSL Settings
