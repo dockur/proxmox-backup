@@ -1,15 +1,18 @@
 services:
-  proxmox:
-    hostname: pve
-    image: dockurr/proxmox
-    container_name: proxmox
+  pbs:
+    hostname: pbs
+    container_name: pbs
+    image: dockurr/proxmox-backup
     environment:
       PASSWORD: "root"
+      TZ: "America/New_York"
     ports:
-      - 8006:8006
+      - 8007:8007
+    tmpfs:
+      - /run
     volumes:
-      - ./storage:/var/lib/vz
-      - ./config:/var/lib/pve-cluster
+      - ./config:/etc/proxmox-backup
+      - ./logs:/var/log/proxmox-backup
+      - ./data:/var/lib/proxmox-backup
     restart: always
-    privileged: true
     stop_grace_period: 2m
