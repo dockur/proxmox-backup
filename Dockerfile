@@ -26,6 +26,7 @@ rm -rf /tmp/* /var/tmp/* /var/lib/apt/lists/*
 EOF
 
 EXPOSE 8007
+STOPSIGNAL SIGHUP
 
 VOLUME /etc/proxmox-backup
 VOLUME /var/lib/proxmox-backup
