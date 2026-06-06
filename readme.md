@@ -50,23 +50,14 @@ services:
 ##### Via Docker CLI:
 
 ```bash
-docker run -it --rm --name pbs --hostname pbs -e "PASSWORD=root" -e "TZ=root"-p 8006:8006 -v "${PWD:-.}/storage:/var/lib/vz" -v "${PWD:-.}/config:/var/lib/pve-cluster" --stop-timeout 120 docker.io/dockurr/proxmox
+docker run -it --rm --name pbs --hostname pbs -e "PASSWORD=root" -e "TZ=America/New_York" -p 8007:8007 --tmpfs /run -v "${PWD:-.}/config:/etc/proxmox-backup" -v "${PWD:-.}/logs:/var/log/proxmox-backup" -v "${PWD:-.}/data:/var/lib/proxmox-backup" --stop-timeout 120 docker.io/dockurr/proxmox-backup
 ```
 
 ##### Via Github Codespaces:
 
 [![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/dockur/proxmox-backup)
 
-## Requirements 🛠️
-
-- Intel VT-x / AMD-V enabled
-- Modern Linux host with kernel 6.8+
-- [Docker Engine](https://docs.docker.com/engine/install/) (version 27 + recommended)
-- Windows 11 with Docker Desktop (WSL2):
-   - WSL kernel version 6.6+ (`wsl --version`)
-   - Nested virtualization enabled in WSL Settings
-
-## Screenshot 📸
+##  Screenshot 📸
 
 <div align="center">
 <a href="https://github.com/dockur/proxmox-backup"><img src="https://raw.githubusercontent.com/dockur/proxmox-backup/master/.github/screenshot.png" title="Screenshot" style="max-width:100%;" width="256" /></a>
@@ -78,63 +69,31 @@ docker run -it --rm --name pbs --hostname pbs -e "PASSWORD=root" -e "TZ=root"-p 
 
   Very simple! These are the steps:
   
-  - Start the container and connect to [port 8006](http://127.0.0.1:8006/) using your web browser.
+  - Start the container and connect to [port 8007](http://127.0.0.1:8007/) using your web browser.
 
   - Login using the username `root` and the password you specified in the `PASSWORD` environment variable.
   
-  Enjoy your time with your brand new Proxmox installation, and don't forget to star this repo!
-
-### How do I change the location of the storage pool?
-
-  To change the location for the `local` storage pool used by Proxmox to store large objects like disk images and .iso files, include the following bind mount in your compose file:
-
-  ```yaml
-  volumes:
-    - ./storage:/var/lib/vz
-  ```
-
-  Replace the example path `./storage` with the desired storage folder or named volume.
+  Enjoy your time with your brand new Proxmox Backup Server, and don't forget to star this repo!
 
 ### How do I change the location of the configuration data?
 
-  To change the location of your Proxmox VE configuration data, include the following bind mount in your compose file:
+  To change the location of the configuration data, include the following two bind mounts in your compose file:
   
   ```yaml
-  volumes:
-    - ./config:/var/lib/pve-cluster
+volumes:
+  - ./config:/etc/proxmox-backup
+  - ./data:/var/lib/proxmox-backup
   ```
 
-  Replace the example path `./config` with the desired storage folder or named volume.
+  Replace the example paths `./config` and `./data` with the desired folders or named volumes.
 
-### How do I verify if my system supports the KVM virtualization used by Proxmox?
+### Is there also Proxmox VE in a container?
 
-  First check if your software is compatible using this chart:
-
-  | **Product**  | **Linux** | **Win11** | **Win10** | **macOS** |
-  |---|---|---|---|---|
-  | Docker CLI        | ✅   | ✅       | ❌        | ❌ |
-  | Docker Desktop    | ❌   | ✅       | ❌        | ❌ | 
-  | Podman CLI        | ✅   | ✅       | ❌        | ❌ | 
-  | Podman Desktop    | ✅   | ✅       | ❌        | ❌ | 
-
-  After that you can run the following commands in Linux to check your system:
-
-  ```bash
-  sudo apt install cpu-checker
-  sudo kvm-ok
-  ```
-
-  If you receive an error from `kvm-ok` indicating that KVM cannot be used, please check whether:
-
-  - the virtualization extensions (`Intel VT-x` or `AMD SVM`) are enabled in your BIOS.
-
-  - you enabled "nested virtualization" if you are running the container inside a virtual machine.
-
-  - you are not using a cloud provider, as most of them do not allow nested virtualization for their VPS's.
+  Yes, see our [dockur/proxmox](https://github.com/dockur/proxmox) repository.
 
 ## Acknowledgements 🙏
 
-Special thanks to [LongQT-sea](https://github.com/LongQT-sea), this project would not exist without his invaluable work.
+Special thanks to [ayufan](https://github.com/ayufan), this project would not exist without his invaluable work.
 
 ## Stars 🌟
 [![Stars](https://starchart.cc/dockur/proxmox-backup.svg?variant=adaptive)](https://starchart.cc/dockur/proxmox-backup)
