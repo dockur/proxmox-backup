@@ -115,6 +115,9 @@ sed -i '/.*imklog.*/d' /etc/rsyslog.conf && \
 # Store version number
 echo "$VERSION_ARG" > /etc/version
 
+# Remove stub
+rm /usr/local/sbin/systemctl
+
 # Cleanup files
 rm -rf /tmp/* /var/tmp/* /var/lib/apt/lists/*
 
