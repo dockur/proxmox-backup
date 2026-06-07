@@ -127,7 +127,7 @@ cleanup() {
   done
 
   # Wait for processes
-  for pid in "${PIDS[@]}"; do
+  for pid in "${pids[@]}"; do
     [[ -z "${pid:-}" ]] && continue
     kill -0 "$pid" 2>/dev/null || continue
     wait "$pid" 2>/dev/null || :
