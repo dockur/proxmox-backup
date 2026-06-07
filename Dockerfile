@@ -57,6 +57,7 @@ apt-get install -y --no-install-recommends \
   gosu \
   procps \
   locales \
+  postfix \
   rsyslog \
   iptables \
   iproute2 \
