@@ -65,10 +65,10 @@ else
 
   repo="https://github.com/wofferl/proxmox-backup-arm64/releases/download/"
   file="$repo/${VERSION_ARG}-1/proxmox-backup-server_${VERSION_ARG}-1_arm64.deb"
-  curl -fsSL -H "$file" -o /pbs.deb
+  curl -fsSL -H "$file" -o /proxmox-backup-server_${VERSION_ARG}-1_arm64.deb
   
   file="$repo/${VERSION_ARG}-1/proxmox-backup-docs_${VERSION_ARG}-1_all.deb"
-  curl -fsSL -H "$file" -o /pbd.deb
+  curl -fsSL -H "$file" -o /proxmox-backup-docs_${VERSION_ARG}-1_all.deb
 
 fi
 
@@ -110,9 +110,9 @@ if [[ "$TARGETARCH" == "amd64" ]]; then
 
 else
 
-  dpkg -i /pbd.deb
-  dpkg -i /pbs.deb
-    
+  dpkg -i /proxmox-backup-docs_${VERSION_ARG}-1_all.deb
+  dpkg -i /proxmox-backup-server_${VERSION_ARG}-1_arm64.deb
+  
 fi
 
 # Remove enterprise repo added by Proxmox packages — keep only no-subscription
