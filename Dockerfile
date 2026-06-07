@@ -84,6 +84,7 @@ printf '#!/bin/sh\nexit 0\n' > /usr/local/sbin/systemctl
 chmod +x /usr/local/sbin/systemctl
 
 # Install Proxmox Backup Server
+apt-get update
 apt-get install -y --no-install-recommends \
   proxmox-backup-docs \
   proxmox-backup-server
