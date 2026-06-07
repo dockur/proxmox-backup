@@ -49,22 +49,6 @@ apt-get install -y --no-install-recommends \
   isc-dhcp-client \
   apt-transport-https
 
-if [[ "$TARGETARCH" == "amd64" ]]; then
-
-# Add Proxmox Backup Server repository
-  curl -sL https://enterprise.proxmox.com/debian/proxmox-archive-keyring-trixie.gpg \
-       -o /usr/share/keyrings/proxmox-archive-keyring.gpg
-
-  cat <<'DEB' | sed 's/^[[:space:]]*//' > /etc/apt/sources.list.d/pbs-no-subscription.sources
-    Types: deb
-    URIs: http://download.proxmox.com/debian/pbs
-    Suites: trixie
-    Components: pbs-no-subscription
-    Signed-By: /usr/share/keyrings/proxmox-archive-keyring.gpg
-DEB
-
-fi
-
 # Block unneeded packages in container
 cat >/etc/apt/preferences.d/99-pdm-unneeded-packages <<BLK
 Package: proxmox-default-kernel proxmox-kernel-* pve-firmware
@@ -94,21 +78,36 @@ chmod +x /usr/local/sbin/systemctl
 
 if [[ "$TARGETARCH" == "amd64" ]]; then
 
+# Add Proxmox Backup Server repository
+  curl -sL https://enterprise.proxmox.com/debian/proxmox-archive-keyring-trixie.gpg \
+       -o /usr/share/keyrings/proxmox-archive-keyring.gpg
+
+  cat <<'DEB' | sed 's/^[[:space:]]*//' > /etc/apt/sources.list.d/pbs-no-subscription.sources
+    Types: deb
+    URIs: http://download.proxmox.com/debian/pbs
+    Suites: trixie
+    Components: pbs-no-subscription
+    Signed-By: /usr/share/keyrings/proxmox-archive-keyring.gpg
+DEB
+
   apt-get update
   apt-get install -y --no-install-recommends \
     proxmox-backup-docs \
     proxmox-backup-server
 
 else
-  apt-get install -y --no-install-recommends dpkg-dev
+
+  apt-get install -y --no-install-recommends \
+    dpkg-dev
 
   tmpdir="/tmp/deb"
   rm -rf "$tmpdir"
   mkdir -p "$tmpdir"
 
   git clone --depth 1 https://github.com/wofferl/proxmox-backup-arm64.git "$tmpdir" &&
-  (cd "$tmpdir" && ./build.sh install=4.2.1-1) &&
+  (cd "$tmpdir" && ./build.sh "install=${VERSION_ARG}-1") &&
   rm -rf "$tmpdir"
+
 fi
 
 # Prevent system updates
