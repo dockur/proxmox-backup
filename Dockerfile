@@ -19,7 +19,6 @@ apt-get update
 
 # Install prerequisites
 apt-get update
-apt-get full-upgrade -y
 apt-get install -y --no-install-recommends \
   jq \
   tini \
