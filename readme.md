@@ -91,7 +91,7 @@ volumes:
 
 ## Acknowledgements 🙏
 
-Special thanks to [feddar](https://github.com/feddar), this project would not exist without his invaluable work.
+Special thanks to [feddar](https://github.com/feddar) and [wofferl](https://github.com/wofferl), this project would not exist without their invaluable work.
 
 ## Stars 🌟
 [![Stars](https://starchart.cc/dockur/proxmox-backup.svg?variant=adaptive)](https://starchart.cc/dockur/proxmox-backup)
