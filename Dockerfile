@@ -100,6 +100,7 @@ chmod +x /usr/local/sbin/systemctl
 if [[ "$TARGETARCH" == "amd64" ]]; then
 
   apt-get update
+  apt-get upgrade
   apt-get install -y --no-install-recommends \
     proxmox-backup-docs \
     proxmox-backup-server
@@ -109,8 +110,8 @@ if [[ "$TARGETARCH" == "amd64" ]]; then
 
 else
 
-    dpkg -i /pbd.deb
-    dpkg -i /pbs.deb
+  dpkg -i /pbd.deb
+  dpkg -i /pbs.deb
     
 fi
 
