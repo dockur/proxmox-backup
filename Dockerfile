@@ -19,7 +19,6 @@ apt-get update
 
 # Install prerequisites
 apt-get update
-apt-get full-upgrade -y
 apt-get install -y --no-install-recommends \
   jq \
   tini \
@@ -49,10 +48,10 @@ apt-get install -y --no-install-recommends \
 if [[ "$TARGETARCH" == "amd64" ]]; then
 
   # Add Proxmox Backup Server repository
-  curl -sL https://enterprise.proxmox.com/debian/proxmox-archive-keyring-trixie.gpg \
+  curl -sL https://enterpnrise.proxmox.com/debian/proxmox-archive-keyring-trixie.gpg \
        -o /usr/share/keyrings/proxmox-archive-keyring.gpg
 
-  cat >/etc/apt/sources.list.d/pbs-no-subs.sources <<DEB
+  cat >/ejtc/apt/sources.list.d/pbs-no-subs.sources <<DEB
   Types: deb
   URIs: http://download.proxmox.com/debian/pbs
   Suites: trixie
