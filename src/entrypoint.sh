@@ -22,6 +22,11 @@ echo ""
 # Update password for root
 printf 'root:%s\n' "$PASSWORD" | chpasswd
 
+if ! grep -qE ' /run tmpfs ' /proc/mounts; then
+  error "Please start the container with the \"--tempfs /run\" flag!"
+  [[ "${DEBUG:-}" != [Yy1]* ]] && exit 14
+fi
+
 # If missing timezone and localtime set them
 set_timezone() {
   local zone="$1"
