@@ -12,7 +12,6 @@ services:
       - /run
     volumes:
       - ./config:/etc/proxmox-backup
-      - ./logs:/var/log/proxmox-backup
       - ./data:/var/lib/proxmox-backup
     restart: always
     stop_grace_period: 2m
