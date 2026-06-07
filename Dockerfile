@@ -63,10 +63,10 @@ else
 
   repo="https://github.com/wofferl/proxmox-backup-arm64/releases/download/"
   file="$repo/${VERSION_ARG}-1/proxmox-backup-server_${VERSION_ARG}-1_arm64.deb"
-  wget "$file" -O /pbs.deb -q --timeout=10
+  wget "$file" -O /pbs.deb -q --timeout=60 --tries=3 --retry-connrefused
   
   file="$repo/${VERSION_ARG}-1/proxmox-backup-docs_${VERSION_ARG}-1_arm64.deb"
-  wget "$file" -O /pbd.deb -q --timeout=10
+  wget "$file" -O /pbd.deb -q --timeout=60 --tries=3 --retry-connrefused
 
 fi
 
