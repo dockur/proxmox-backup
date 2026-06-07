@@ -98,6 +98,7 @@ DEB
 else
 
   apt-get install -y --no-install-recommends \
+    sudo \
     dpkg-dev
 
   tmpdir="/tmp/deb"
