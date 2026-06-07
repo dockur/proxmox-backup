@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 
-FROM debian:trixie-slim
+FROM debian:trixie
 
 ARG TARGETARCH
 ARG VERSION_ARG="4.2.0"
@@ -100,7 +100,6 @@ chmod +x /usr/local/sbin/systemctl
 if [[ "$TARGETARCH" == "amd64" ]]; then
 
   apt-get update
-  apt-get upgrade
   apt-get install -y --no-install-recommends \
     proxmox-backup-docs \
     proxmox-backup-server
