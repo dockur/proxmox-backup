@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 
-FROM --platform=linux/amd64 debian:trixie-slim AS base-amd64
-FROM --platform=linux/arm64 debian:trixie-slim AS base-arm64
+FROM --platform=linux/amd64 debian:trixie AS base-amd64
+FROM --platform=linux/arm64 debian:trixie AS base-arm64
 
 FROM base-${TARGETARCH} AS base
 
