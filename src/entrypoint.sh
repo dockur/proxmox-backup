@@ -118,10 +118,10 @@ cleanup() {
   echo "Shutting down PBS services..."
   
   pids=(
-    "$PBS_PID"
-    "$API_PID"
-    "$POSTFIX_PID"
-    "$RSYSLOG_PID"
+    "${PBS_PID:-}"
+    "${API_PID:-}"
+    "${POSTFIX_PID:-}"
+    "${RSYSLOG_PID:-}"
   )
 
   # Send SIGTERM 
