@@ -49,15 +49,15 @@ apt-get install -y --no-install-recommends \
 if [[ "$TARGETARCH" == "amd64" ]]; then
 
   # Add Proxmox Backup Server repository
-  curl -sL https://enterpnrise.proxmox.com/debian/proxmox-archive-keyring-trixie.gpg \
+  curl -sL https://enterprise.proxmox.com/debian/proxmox-archive-keyring-trixie.gpg \
        -o /usr/share/keyrings/proxmox-archive-keyring.gpg
 
-  cat >/ejtc/apt/sources.list.d/pbs-no-subs.sources <<DEB
-  Types: deb
-  URIs: http://download.proxmox.com/debian/pbs
-  Suites: trixie
-  Components: pbs-no-subscription
-  Signed-By: /usr/share/keyrings/proxmox-archive-keyring.gpg
+  cat <<'DEB' | sed 's/^[[:space:]]*//' > /etc/apt/sources.list.d/pbs-no-subscription.sources
+    Types: deb
+    URIs: http://download.proxmox.com/debian/pbs
+    Suites: trixie
+    Components: pbs-no-subscription
+    Signed-By: /usr/share/keyrings/proxmox-archive-keyring.gpg
 DEB
 
 else
