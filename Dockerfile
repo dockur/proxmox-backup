@@ -62,26 +62,6 @@ if [[ "$TARGETARCH" == "amd64" ]]; then
     Signed-By: /usr/share/keyrings/proxmox-archive-keyring.gpg
 DEB
 
-else
-
-  apt_keyrings_dir="/etc/apt/keyrings"
-  apt_source_path="/etc/apt/sources.list.d/simoncaron_pbs.list"
-  gpg_key_url="https://packagecloud.io/simoncaron/pbs/gpgkey"
-  gpg_keyring_path="$apt_keyrings_dir/simoncaron_pbs-archive-keyring.gpg"
-  apt_config_url="https://packagecloud.io/install/repositories/simoncaron/pbs/config_file.list?os=${os}&dist=${dist}&source=script"
-
-  # Create an APT config file for this repository
-  curl -sSf "${apt_config_url}" > $apt_source_path
-  curl_exit_code=$?
-
-  if [ "$curl_exit_code" -gt "0" ]; then
-    echo "Download failed, code: $curl_exit_code" && exit 1
-  fi
-
-  # Import the GPG key
-  curl -fsSL "${gpg_key_url}" | gpg --dearmor > ${gpg_keyring_path}
-  chmod 0644 "${gpg_keyring_path}"
-
 fi
 
 # Block unneeded packages in container
@@ -111,10 +91,24 @@ chmod +x /usr/local/sbin/systemctl
 
 # Install Proxmox Backup Server
 
-apt-get update
-apt-get install -y --no-install-recommends \
-  proxmox-backup-docs \
-  proxmox-backup-server
+if [[ "$TARGETARCH" == "amd64" ]]; then
+
+  apt-get update
+  apt-get install -y --no-install-recommends \
+    proxmox-backup-docs \
+    proxmox-backup-server
+
+else
+
+  tmpdir="/tmp/deb"
+  rm -rf "$tmpdir"
+  mkdir -p "$tmpdir"
+
+  git clone --depth 1 https://github.com/wofferl/proxmox-backup-arm64.git "$tmpdir" &&
+  (cd "$tmpdir" && ./build.sh install=4.2.1-1) &&
+  rm -rf "$tmpdir"
+
+fi
 
 # Prevent system updates
 apt-mark hold proxmox-backup-server proxmox-backup-docs
