@@ -51,7 +51,7 @@ apt-get install -y --no-install-recommends \
 
 if [[ "$TARGETARCH" == "amd64" ]]; then
 
-  # Add Proxmox Backup Server repository
+# Add Proxmox Backup Server repository
   curl -sL https://enterprise.proxmox.com/debian/proxmox-archive-keyring-trixie.gpg \
        -o /usr/share/keyrings/proxmox-archive-keyring.gpg
 
@@ -100,6 +100,7 @@ if [[ "$TARGETARCH" == "amd64" ]]; then
     proxmox-backup-server
 
 else
+  apt-get install -y --no-install-recommends dpkg-dev
 
   tmpdir="/tmp/deb"
   rm -rf "$tmpdir"
@@ -108,7 +109,6 @@ else
   git clone --depth 1 https://github.com/wofferl/proxmox-backup-arm64.git "$tmpdir" &&
   (cd "$tmpdir" && ./build.sh install=4.2.1-1) &&
   rm -rf "$tmpdir"
-
 fi
 
 # Prevent system updates
