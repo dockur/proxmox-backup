@@ -1,9 +1,6 @@
 # syntax=docker/dockerfile:1
 
-FROM --platform=linux/amd64 debian:trixie AS base-amd64
-FROM --platform=linux/arm64 debian:trixie AS base-arm64
-
-FROM base-${TARGETARCH} AS base
+FROM debian:trixie-slim
 
 ARG TARGETARCH
 ARG VERSION_ARG="4.2.0"
@@ -45,8 +42,7 @@ apt-get install -y --no-install-recommends \
   iputils-ping \
   netcat-openbsd \
   ca-certificates \
-  isc-dhcp-client \
-  apt-transport-https
+  isc-dhcp-client
 
 # Block unneeded packages in container
 cat >/etc/apt/preferences.d/99-pdm-unneeded-packages <<BLK
@@ -99,7 +95,8 @@ else
   apt-get install -y --no-install-recommends \
     git \
     sudo \
-    dpkg-dev
+    dpkg-dev \
+    apt-transport-https
 
   tmpdir="/tmp/deb"
   rm -rf "$tmpdir"
