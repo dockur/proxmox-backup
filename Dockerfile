@@ -1,9 +1,9 @@
 # syntax=docker/dockerfile:1
 
-FROM debian:trixie
+FROM debian:trixie-slim
 
 ARG TARGETARCH
-ARG VERSION_ARG="0.0"
+ARG VERSION_ARG="4.2.0"
 
 ARG DEBCONF_NOWARNINGS="yes"
 ARG DEBIAN_FRONTEND="noninteractive"
@@ -45,18 +45,31 @@ apt-get install -y --no-install-recommends \
   netcat-openbsd \
   ca-certificates \
   isc-dhcp-client
-  
-# Add Proxmox Backup Server repository
-curl -sL https://enterprise.proxmox.com/debian/proxmox-archive-keyring-trixie.gpg \
-     -o /usr/share/keyrings/proxmox-archive-keyring.gpg
 
-cat >/etc/apt/sources.list.d/pbs-no-subs.sources <<DEB
-Types: deb
-URIs: http://download.proxmox.com/debian/pbs
-Suites: trixie
-Components: pbs-no-subscription
-Signed-By: /usr/share/keyrings/proxmox-archive-keyring.gpg
+if [[ "$TARGETARCH" == "amd64" ]]; then
+
+  # Add Proxmox Backup Server repository
+  curl -sL https://enterprise.proxmox.com/debian/proxmox-archive-keyring-trixie.gpg \
+       -o /usr/share/keyrings/proxmox-archive-keyring.gpg
+
+  cat >/etc/apt/sources.list.d/pbs-no-subs.sources <<DEB
+  Types: deb
+  URIs: http://download.proxmox.com/debian/pbs
+  Suites: trixie
+  Components: pbs-no-subscription
+  Signed-By: /usr/share/keyrings/proxmox-archive-keyring.gpg
 DEB
+
+else
+
+  repo="https://github.com/wofferl/proxmox-backup-arm64/releases/download/"
+  file="$repo/${VERSION_ARG}-1/proxmox-backup-server_${VERSION_ARG}-1_arm64.deb"
+  wget "$file" -O /pbs.deb -q --timeout=10
+  
+  file="$repo/${VERSION_ARG}-1/proxmox-backup-docs_${VERSION_ARG}-1_arm64.deb"
+  wget "$file" -O /pbd.deb -q --timeout=10
+
+fi
 
 # Block unneeded packages in container
 cat >/etc/apt/preferences.d/99-pdm-unneeded-packages <<BLK
@@ -84,10 +97,19 @@ printf '#!/bin/sh\nexit 0\n' > /usr/local/sbin/systemctl
 chmod +x /usr/local/sbin/systemctl
 
 # Install Proxmox Backup Server
-apt-get update
-apt-get install -y --no-install-recommends \
-  proxmox-backup-docs \
-  proxmox-backup-server
+if [[ "$TARGETARCH" == "amd64" ]]; then
+
+  apt-get update
+  apt-get install -y --no-install-recommends \
+    proxmox-backup-docs \
+    proxmox-backup-server
+
+else
+
+    dpkg -i /pbd.deb
+    dpkg -i /pbs.deb
+    
+fi
 
 # Remove enterprise repo added by Proxmox packages — keep only no-subscription
 rm -f /etc/apt/sources.list.d/pbs-enterprise.list \
