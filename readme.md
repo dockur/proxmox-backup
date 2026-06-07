@@ -40,7 +40,6 @@ services:
       - /run
     volumes:
       - ./config:/etc/proxmox-backup
-      - ./logs:/var/log/proxmox-backup
       - ./data:/var/lib/proxmox-backup
     restart: always
     stop_grace_period: 2m
@@ -49,7 +48,7 @@ services:
 ##### Via Docker CLI:
 
 ```bash
-docker run -it --rm --name pbs --hostname pbs -e "PASSWORD=root" -e "TZ=America/New_York" -p 8007:8007 --tmpfs /run -v "${PWD:-.}/config:/etc/proxmox-backup" -v "${PWD:-.}/logs:/var/log/proxmox-backup" -v "${PWD:-.}/data:/var/lib/proxmox-backup" --stop-timeout 120 docker.io/dockurr/proxmox-backup
+docker run -it --rm --name pbs --hostname pbs -e "PASSWORD=root" -e "TZ=America/New_York" -p 8007:8007 --tmpfs /run -v "${PWD:-.}/config:/etc/proxmox-backup" -v "${PWD:-.}/data:/var/lib/proxmox-backup" --stop-timeout 120 docker.io/dockurr/proxmox-backup
 ```
 
 ##### Via Github Codespaces:
