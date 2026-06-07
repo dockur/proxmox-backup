@@ -63,11 +63,9 @@ else
 
   repo="https://github.com/wofferl/proxmox-backup-arm64/releases/download/"
   file="$repo/${VERSION_ARG}-1/proxmox-backup-server_${VERSION_ARG}-1_arm64.deb"
-  echo "$file"
   curl -fsSL -H "Authorization: token ${GITHUB_TOKEN}" "$file" -o /pbs.deb
   
-  file="$repo/${VERSION_ARG}-1/proxmox-backup-docs_${VERSION_ARG}-1_arm64.deb"
-  echo "$file"
+  file="$repo/${VERSION_ARG}-1/proxmox-backup-docs_${VERSION_ARG}-1_all.deb"
   curl -fsSL -H "Authorization: token ${GITHUB_TOKEN}" "$file" -o /pbd.deb
 
 fi
