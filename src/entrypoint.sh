@@ -118,10 +118,10 @@ cleanup() {
   echo "Shutting down PBS services..."
   
   pids=(
-    "$PBS_PID"
-    "$API_PID"
-    "$POSTFIX_PID"
-    "$RSYSLOG_PID"
+    "${PBS_PID:-}"
+    "${API_PID:-}"
+    "${POSTFIX_PID:-}"
+    "${RSYSLOG_PID:-}"
   )
 
   # Send SIGTERM 
@@ -151,7 +151,13 @@ _trap cleanup SIGTERM SIGINT
 echo "Starting Proxmox Backup API..."
 
 file="/run/proxmox-backup/api.pid"
-dir="/usr/lib/x86_64-linux-gnu/proxmox-backup"
+
+if [ "$TARGETARCH" = "amd64" ]; then
+  dir=/usr/lib/x86_64-linux-gnu/proxmox-backup
+else
+  dir="/usr/lib/$(dpkg-architecture -qDEB_HOST_MULTIARCH)/proxmox-backup"
+fi
+
 rm -f "$file"
 
 "$dir/proxmox-backup-api" &

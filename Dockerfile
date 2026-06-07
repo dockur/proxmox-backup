@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 
-FROM debian:trixie-slim
+FROM debian:trixie
 
 ARG TARGETARCH
 ARG VERSION_ARG="4.2.0"
@@ -15,11 +15,9 @@ RUN <<EOF
 
 # Break on errors
 set -Eeuo pipefail
-apt-get update
 
 # Install prerequisites
 apt-get update
-apt-get full-upgrade -y
 apt-get install -y --no-install-recommends \
   jq \
   tini \
@@ -45,31 +43,6 @@ apt-get install -y --no-install-recommends \
   netcat-openbsd \
   ca-certificates \
   isc-dhcp-client
-
-if [[ "$TARGETARCH" == "amd64" ]]; then
-
-  # Add Proxmox Backup Server repository
-  curl -sL https://enterprise.proxmox.com/debian/proxmox-archive-keyring-trixie.gpg \
-       -o /usr/share/keyrings/proxmox-archive-keyring.gpg
-
-  cat >/etc/apt/sources.list.d/pbs-no-subs.sources <<DEB
-  Types: deb
-  URIs: http://download.proxmox.com/debian/pbs
-  Suites: trixie
-  Components: pbs-no-subscription
-  Signed-By: /usr/share/keyrings/proxmox-archive-keyring.gpg
-DEB
-
-else
-
-  repo="https://github.com/wofferl/proxmox-backup-arm64/releases/download/"
-  file="$repo/${VERSION_ARG}-1/proxmox-backup-server_${VERSION_ARG}-1_arm64.deb"
-  wget "$file" -O /pbs.deb -q --timeout=10
-  
-  file="$repo/${VERSION_ARG}-1/proxmox-backup-docs_${VERSION_ARG}-1_arm64.deb"
-  wget "$file" -O /pbd.deb -q --timeout=10
-
-fi
 
 # Block unneeded packages in container
 cat >/etc/apt/preferences.d/99-pdm-unneeded-packages <<BLK
@@ -97,7 +70,20 @@ printf '#!/bin/sh\nexit 0\n' > /usr/local/sbin/systemctl
 chmod +x /usr/local/sbin/systemctl
 
 # Install Proxmox Backup Server
+
 if [[ "$TARGETARCH" == "amd64" ]]; then
+
+# Add Proxmox Backup Server repository
+  curl -sL https://enterprise.proxmox.com/debian/proxmox-archive-keyring-trixie.gpg \
+       -o /usr/share/keyrings/proxmox-archive-keyring.gpg
+
+  cat <<'DEB' | sed 's/^[[:space:]]*//' > /etc/apt/sources.list.d/pbs-no-subscription.sources
+    Types: deb
+    URIs: http://download.proxmox.com/debian/pbs
+    Suites: trixie
+    Components: pbs-no-subscription
+    Signed-By: /usr/share/keyrings/proxmox-archive-keyring.gpg
+DEB
 
   apt-get update
   apt-get install -y --no-install-recommends \
@@ -106,19 +92,31 @@ if [[ "$TARGETARCH" == "amd64" ]]; then
 
 else
 
-    dpkg -i /pbd.deb
-    dpkg -i /pbs.deb
-    
+  apt-get install -y --no-install-recommends \
+    git \
+    sudo \
+    dpkg-dev \
+    apt-transport-https
+
+  tmpdir="/tmp/deb"
+  rm -rf "$tmpdir"
+  mkdir -p "$tmpdir"
+
+  # Download packages from wofferl/proxmox-backup-arm64
+  git clone --depth 1 https://github.com/wofferl/proxmox-backup-arm64.git "$tmpdir" &&
+  (cd "$tmpdir" && ./build.sh "install=${VERSION_ARG}-1") &&
+  rm -rf "$tmpdir"
+
 fi
+
+# Prevent system updates
+apt-mark hold proxmox-backup-server proxmox-backup-docs
 
 # Remove enterprise repo added by Proxmox packages — keep only no-subscription
 rm -f /etc/apt/sources.list.d/pbs-enterprise.list \
       /etc/apt/sources.list.d/pbs-enterprise.sources \
       /etc/apt/sources.list.d/ceph.list \
       /etc/apt/sources.list.d/ceph.sources
-
-# Prevent system updates
-apt-mark hold proxmox-backup-server proxmox-backup-docs
 
 # Cleanup
 apt-get autoremove -y
