@@ -104,6 +104,9 @@ if [[ "$TARGETARCH" == "amd64" ]]; then
     proxmox-backup-docs \
     proxmox-backup-server
 
+  # Prevent system updates
+  apt-mark hold proxmox-backup-server proxmox-backup-docs
+
 else
 
     dpkg -i /pbd.deb
@@ -116,9 +119,6 @@ rm -f /etc/apt/sources.list.d/pbs-enterprise.list \
       /etc/apt/sources.list.d/pbs-enterprise.sources \
       /etc/apt/sources.list.d/ceph.list \
       /etc/apt/sources.list.d/ceph.sources
-
-# Prevent system updates
-apt-mark hold proxmox-backup-server proxmox-backup-docs
 
 # Cleanup
 apt-get autoremove -y
