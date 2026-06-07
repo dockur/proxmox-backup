@@ -1,9 +1,11 @@
 # syntax=docker/dockerfile:1
 
-FROM debian:trixie-slim
+FROM --platform=linux/amd64 debian:trixie-slim AS base-amd64
+FROM --platform=linux/arm64 debian:trixie-slim AS base-arm64
+
+FROM base-${TARGETARCH} AS base
 
 ARG TARGETARCH
-ARG GITHUB_TOKEN=""
 ARG VERSION_ARG="4.2.0"
 
 ARG DEBCONF_NOWARNINGS="yes"
@@ -63,10 +65,10 @@ else
 
   repo="https://github.com/wofferl/proxmox-backup-arm64/releases/download/"
   file="$repo/${VERSION_ARG}-1/proxmox-backup-server_${VERSION_ARG}-1_arm64.deb"
-  curl -fsSL -H "Authorization: token ${GITHUB_TOKEN}" "$file" -o /pbs.deb
+  curl -fsSL -H "$file" -o /pbs.deb
   
   file="$repo/${VERSION_ARG}-1/proxmox-backup-docs_${VERSION_ARG}-1_all.deb"
-  curl -fsSL -H "Authorization: token ${GITHUB_TOKEN}" "$file" -o /pbd.deb
+  curl -fsSL -H "$file" -o /pbd.deb
 
 fi
 
