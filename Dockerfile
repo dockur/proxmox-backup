@@ -45,7 +45,8 @@ apt-get install -y --no-install-recommends \
   iputils-ping \
   netcat-openbsd \
   ca-certificates \
-  isc-dhcp-client
+  isc-dhcp-client \
+  apt-transport-https
 
 if [[ "$TARGETARCH" == "amd64" ]]; then
 
@@ -63,12 +64,23 @@ DEB
 
 else
 
-  repo="https://github.com/wofferl/proxmox-backup-arm64/releases/download/"
-  file="$repo/${VERSION_ARG}-1/proxmox-backup-server_${VERSION_ARG}-1_arm64.deb"
-  curl -fsSL -H "$file" -o /proxmox-backup-server_${VERSION_ARG}-1_arm64.deb
-  
-  file="$repo/${VERSION_ARG}-1/proxmox-backup-docs_${VERSION_ARG}-1_all.deb"
-  curl -fsSL -H "$file" -o /proxmox-backup-docs_${VERSION_ARG}-1_all.deb
+  apt_keyrings_dir="/etc/apt/keyrings"
+  apt_source_path="/etc/apt/sources.list.d/simoncaron_pbs.list"
+  gpg_key_url="https://packagecloud.io/simoncaron/pbs/gpgkey"
+  gpg_keyring_path="$apt_keyrings_dir/simoncaron_pbs-archive-keyring.gpg"
+  apt_config_url="https://packagecloud.io/install/repositories/simoncaron/pbs/config_file.list?os=${os}&dist=${dist}&source=script"
+
+  # Create an APT config file for this repository
+  curl -sSf "${apt_config_url}" > $apt_source_path
+  curl_exit_code=$?
+
+  if [ "$curl_exit_code" -gt "0" ]; then
+    echo "Download failed, code: $curl_exit_code" && exit 1
+  fi
+
+  # Import the GPG key
+  curl -fsSL "${gpg_key_url}" | gpg --dearmor > ${gpg_keyring_path}
+  chmod 0644 "${gpg_keyring_path}"
 
 fi
 
@@ -98,22 +110,14 @@ printf '#!/bin/sh\nexit 0\n' > /usr/local/sbin/systemctl
 chmod +x /usr/local/sbin/systemctl
 
 # Install Proxmox Backup Server
-if [[ "$TARGETARCH" == "amd64" ]]; then
 
-  apt-get update
-  apt-get install -y --no-install-recommends \
-    proxmox-backup-docs \
-    proxmox-backup-server
+apt-get update
+apt-get install -y --no-install-recommends \
+  proxmox-backup-docs \
+  proxmox-backup-server
 
-  # Prevent system updates
-  apt-mark hold proxmox-backup-server proxmox-backup-docs
-
-else
-
-  dpkg -i /proxmox-backup-docs_${VERSION_ARG}-1_all.deb
-  dpkg -i /proxmox-backup-server_${VERSION_ARG}-1_arm64.deb
-  
-fi
+# Prevent system updates
+apt-mark hold proxmox-backup-server proxmox-backup-docs
 
 # Remove enterprise repo added by Proxmox packages — keep only no-subscription
 rm -f /etc/apt/sources.list.d/pbs-enterprise.list \
