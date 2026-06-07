@@ -151,7 +151,7 @@ _trap cleanup SIGTERM SIGINT
 echo "Starting Proxmox Backup API..."
 
 file="/run/proxmox-backup/api.pid"
-dir="/usr/lib/x86_64-linux-gnu/proxmox-backup"
+dir="/usr/lib/$(dpkg-architecture -qDEB_HOST_MULTIARCH)/proxmox-backup"
 rm -f "$file"
 
 "$dir/proxmox-backup-api" &
