@@ -54,7 +54,6 @@ apt-get install -y --no-install-recommends \
   htop \
   less \
   cpio \
-  http \
   gosu \
   procps \
   locales \
