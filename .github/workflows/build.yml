@@ -105,6 +105,7 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           annotations: ${{ steps.meta.outputs.annotations }}
           build-args: |
+            GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}
             VERSION_ARG=${{ steps.meta.outputs.version }}
       -
         name: Create a release
