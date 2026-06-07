@@ -58,6 +58,7 @@ elif ! check_localtime; then
 fi
 
 # Start rsyslog
+echo "Starting rsyslog..."
 rsyslogd
 RSYSLOG_PID=$(cat /var/run/rsyslogd.pid 2>/dev/null || echo "")
 
@@ -66,15 +67,16 @@ RELAY_HOST=${RELAY_HOST:-ext.home.local}
 sed -i "s/RELAY_HOST/$RELAY_HOST/" /etc/postfix/main.cf
 
 /etc/init.d/postfix start || ok=1
+read -r POSTFIX_PID < /var/spool/postfix/pid/master.pid
 
 # Ensure directory permissions
 user="backup"
 dir="/etc/proxmox-backup"
 
-usermod -s /bin/bash "$user"
-usermod -a -G "$user" root
-usermod -g "$user" root
-usermod -aG sudo "$user"
+usermod -s /bin/bash "$user" >/dev/null || :
+usermod -a -G "$user" root >/dev/null || :
+usermod -g "$user" root >/dev/null || :
+usermod -aG sudo "$user" >/dev/null || :
     
 mkdir -p "$dir"
 chmod 700 "$dir" || :
@@ -109,22 +111,27 @@ cleanup() {
 
   touch /proxmox.end
   echo "Shutting down PBS services..."
+  
+  pids=(
+    "$PBS_PID"
+    "$API_PID"
+    "$POSTFIX_PID"
+    "$RSYSLOG_PID"
+  )
 
-  # Stop in reverse order
-  if [[ -n "${PBS_PID:-}" ]] && kill -0 "$PBS_PID" 2>/dev/null; then
-    kill -TERM "$PBS_PID" 2>/dev/null || :
-  fi
-
-  if [[ -n "${API_PID:-}" ]] && kill -0 "$API_PID" 2>/dev/null; then
-    kill -TERM "$API_PID" 2>/dev/null || :
-  fi
-
-  if [[ -n "${RSYSLOG_PID:-}" ]] && kill -0 "$RSYSLOG_PID" 2>/dev/null; then
-    kill -TERM "$RSYSLOG_PID" 2>/dev/null || :
-  fi
+  # Send SIGTERM 
+  for pid in "${pids[@]}"; do
+    [[ -z "${pid:-}" ]] && continue
+    kill -0 "$pid" 2>/dev/null || continue
+    kill -TERM "$pid" 2>/dev/null || :
+  done
 
   # Wait for processes
-  wait -n "${API_PID:-}" "${PBS_PID:-} ${RSYSLOG_PID:-}" 2>/dev/null || :
+  for pid in "${PIDS[@]}"; do
+    [[ -z "${pid:-}" ]] && continue
+    kill -0 "$pid" 2>/dev/null || continue
+    wait "$pid" 2>/dev/null || :
+  done
 
   echo ""
   echo "Shutdown completed successfully."
