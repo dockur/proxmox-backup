@@ -61,6 +61,12 @@ fi
 rsyslogd
 RSYSLOG_PID=$(cat /var/run/rsyslogd.pid 2>/dev/null || echo "")
 
+echo "Starting Postfix..."
+RELAY_HOST=${RELAY_HOST:-ext.home.local}
+sed -i "s/RELAY_HOST/$RELAY_HOST/" /etc/postfix/main.cf
+
+/etc/init.d/postfix start || ok=1
+
 # Ensure directory permissions
 user="backup"
 dir="/etc/proxmox-backup"
