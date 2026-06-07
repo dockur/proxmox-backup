@@ -23,6 +23,7 @@ set -Eeuo pipefail
 apt-get update
 apt-get install -y --no-install-recommends \
   jq \
+  git \
   tini \
   curl \
   nano \
