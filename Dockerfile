@@ -74,7 +74,7 @@ chmod +x /usr/local/sbin/systemctl
 
 if [[ "$TARGETARCH" == "amd64" ]]; then
 
-# Add Proxmox Backup Server repository
+  # Add Proxmox Backup Server repository
   curl -sL https://enterprise.proxmox.com/debian/proxmox-archive-keyring-trixie.gpg \
        -o /usr/share/keyrings/proxmox-archive-keyring.gpg
 
