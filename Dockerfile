@@ -95,7 +95,6 @@ else
   apt-get install -y --no-install-recommends \
     git \
     sudo \
-    dpkg-dev \
     apt-transport-https
 
   tmpdir="/tmp/deb"
