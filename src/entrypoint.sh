@@ -27,6 +27,10 @@ if ! grep -qE ' /run tmpfs ' /proc/mounts; then
   [[ "${DEBUG:-}" != [Yy1]* ]] && exit 14
 fi
 
+# TODO:
+#
+# - Daily cron jobs
+
 # If missing timezone and localtime set them
 set_timezone() {
   local zone="$1"
