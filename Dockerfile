@@ -95,6 +95,7 @@ else
   apt-get install -y --no-install-recommends \
     git \
     sudo \
+    dpkg-dev \
     apt-transport-https
 
   tmpdir="/tmp/deb"
@@ -105,6 +106,12 @@ else
   git clone --depth 1 https://github.com/wofferl/proxmox-backup-arm64.git "$tmpdir" &&
   (cd "$tmpdir" && ./build.sh "install=${VERSION_ARG}-1") &&
   rm -rf "$tmpdir"
+
+  apt-get remove -y \
+    git \
+    sudo \
+    dpkg-dev \
+    apt-transport-https
 
 fi
 
