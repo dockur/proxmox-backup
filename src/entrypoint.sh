@@ -157,7 +157,7 @@ rm -f "$file"
 if [[ "$arch" == "x86_64" ]]; then
   dir="/usr/lib/x86_64-linux-gnu/proxmox-backup"
 else
-  dir="/usr/lib/$(dpkg-architecture -qDEB_HOST_MULTIARCH)/proxmox-backup"
+  dir="/usr/lib/aarch64-linux-gnu/proxmox-backup"
 fi
 
 "$dir/proxmox-backup-api" &
