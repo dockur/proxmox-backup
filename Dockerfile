@@ -103,8 +103,8 @@ else
   rm -rf "$tmpdir"
   mkdir -p "$tmpdir"
 
-  # Download packages from wofferl/proxmox-backup-arm64
-  git clone --depth 1 https://github.com/wofferl/proxmox-backup-arm64.git "$tmpdir" &&
+  # Download packages from repo: qemus/proxmox-backup-arm64
+  git clone --depth 1 https://github.com/qemus/proxmox-backup-arm64.git "$tmpdir" &&
   (cd "$tmpdir" && ./build.sh "install=${VERSION_ARG}-1") &&
   rm -rf "$tmpdir"
 
