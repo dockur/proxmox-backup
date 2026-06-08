@@ -45,16 +45,16 @@ apt-get install -y --no-install-recommends \
   ca-certificates \
   isc-dhcp-client
 
+# Prevent services from starting during install
+printf '#!/bin/sh\nexit 101\n' > /usr/sbin/policy-rc.d
+chmod +x /usr/sbin/policy-rc.d
+
 # Block unneeded packages in container
 cat >/etc/apt/preferences.d/99-pdm-unneeded-packages <<BLK
 Package: proxmox-default-kernel proxmox-kernel-* pve-firmware
 Pin: release *
 Pin-Priority: -1
 BLK
-
-# Prevent services from starting during install
-printf '#!/bin/sh\nexit 101\n' > /usr/sbin/policy-rc.d
-chmod +x /usr/sbin/policy-rc.d
 
 # Stub commands unavailable / problematic in a Docker build
 dpkg-divert --local --rename --add /usr/bin/unshare
