@@ -150,7 +150,7 @@ _trap cleanup SIGTERM SIGINT
 # Start PBS Services
 echo "Starting Proxmox Backup API..."
 
-arch=$(uname -m)
+arch=$(dpkg --print-architecture)
 file="/run/proxmox-backup/api.pid"
 rm -f "$file"
 
