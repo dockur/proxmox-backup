@@ -27,7 +27,7 @@ apt-get install -y --no-install-recommends \
   htop \
   less \
   cpio \
-  dkpg \
+  dpkg \
   gosu \
   procps \
   locales \
