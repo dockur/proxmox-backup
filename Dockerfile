@@ -110,7 +110,6 @@ else
 
   apt-get remove -y \
     git \
-    sudo \
     dpkg-dev \
     apt-transport-https
 
