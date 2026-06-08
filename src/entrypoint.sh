@@ -150,14 +150,14 @@ _trap cleanup SIGTERM SIGINT
 # Start PBS Services
 echo "Starting Proxmox Backup API..."
 
-arch=$(uname -i)
+arch=$(dpkg --print-architecture)
 file="/run/proxmox-backup/api.pid"
 rm -f "$file"
 
-if [[ "$arch" == "x86_64" ]]; then
+if [[ "$arch" == "amd64" ]]; then
   dir="/usr/lib/x86_64-linux-gnu/proxmox-backup"
 else
-  dir="/usr/lib/$(dpkg-architecture -qDEB_HOST_MULTIARCH)/proxmox-backup"
+  dir="/usr/lib/aarch64-linux-gnu/proxmox-backup"
 fi
 
 "$dir/proxmox-backup-api" &

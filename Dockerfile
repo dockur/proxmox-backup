@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 
-FROM debian:trixie
+FROM debian:trixie-slim
 
 ARG TARGETARCH
 ARG VERSION_ARG="4.2.0"
@@ -27,6 +27,7 @@ apt-get install -y --no-install-recommends \
   htop \
   less \
   cpio \
+  dpkg \
   gosu \
   procps \
   locales \
@@ -106,6 +107,11 @@ else
   git clone --depth 1 https://github.com/wofferl/proxmox-backup-arm64.git "$tmpdir" &&
   (cd "$tmpdir" && ./build.sh "install=${VERSION_ARG}-1") &&
   rm -rf "$tmpdir"
+
+  apt-get remove -y \
+    git \
+    dpkg-dev \
+    apt-transport-https
 
 fi
 
