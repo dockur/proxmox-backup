@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 
-FROM debian:trixie
+FROM debian:trixie-slim
 
 ARG TARGETARCH
 ARG VERSION_ARG="4.2.0"
