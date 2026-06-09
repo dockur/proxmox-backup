@@ -40,6 +40,7 @@ apt-get install -y --no-install-recommends \
   nfs-common \
   cifs-utils \
   traceroute \
+  supercronic \
   iputils-ping \
   netcat-openbsd \
   ca-certificates \
