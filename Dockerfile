@@ -104,8 +104,10 @@ else
   mkdir -p "$tmpdir"
 
   # Download packages from repo: qemus/proxmox-backup-arm64
-  git clone --depth 1 https://github.com/qemus/proxmox-backup-arm64.git "$tmpdir" &&
-  (cd "$tmpdir" && ./build.sh "install=${VERSION_ARG}-1") &&
+  git clone --depth 1 https://github.com/qemus/proxmox-backup-arm64.git "$tmpdir"
+  chmod +x "$tmpdir/build.sh"
+
+  (cd "$tmpdir" && ./build.sh "install=${VERSION_ARG}-1")
   rm -rf "$tmpdir"
 
   apt-get remove -y \
