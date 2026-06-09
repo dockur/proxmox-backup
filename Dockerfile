@@ -45,16 +45,16 @@ apt-get install -y --no-install-recommends \
   ca-certificates \
   isc-dhcp-client
 
+# Prevent services from starting during install
+printf '#!/bin/sh\nexit 101\n' > /usr/sbin/policy-rc.d
+chmod +x /usr/sbin/policy-rc.d
+
 # Block unneeded packages in container
 cat >/etc/apt/preferences.d/99-pdm-unneeded-packages <<BLK
 Package: proxmox-default-kernel proxmox-kernel-* pve-firmware
 Pin: release *
 Pin-Priority: -1
 BLK
-
-# Prevent services from starting during install
-printf '#!/bin/sh\nexit 101\n' > /usr/sbin/policy-rc.d
-chmod +x /usr/sbin/policy-rc.d
 
 # Stub commands unavailable / problematic in a Docker build
 dpkg-divert --local --rename --add /usr/bin/unshare
@@ -74,7 +74,7 @@ chmod +x /usr/local/sbin/systemctl
 
 if [[ "$TARGETARCH" == "amd64" ]]; then
 
-# Add Proxmox Backup Server repository
+  # Add Proxmox Backup Server repository
   curl -sL https://enterprise.proxmox.com/debian/proxmox-archive-keyring-trixie.gpg \
        -o /usr/share/keyrings/proxmox-archive-keyring.gpg
 
@@ -103,8 +103,8 @@ else
   rm -rf "$tmpdir"
   mkdir -p "$tmpdir"
 
-  # Download packages from wofferl/proxmox-backup-arm64
-  git clone --depth 1 https://github.com/wofferl/proxmox-backup-arm64.git "$tmpdir" &&
+  # Download packages from repo: qemus/proxmox-backup-arm64
+  git clone --depth 1 https://github.com/qemus/proxmox-backup-arm64.git "$tmpdir" &&
   (cd "$tmpdir" && ./build.sh "install=${VERSION_ARG}-1") &&
   rm -rf "$tmpdir"
 
