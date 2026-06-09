@@ -40,7 +40,6 @@ apt-get install -y --no-install-recommends \
   nfs-common \
   cifs-utils \
   traceroute \
-  supercronic \
   iputils-ping \
   netcat-openbsd \
   ca-certificates \
@@ -120,6 +119,24 @@ fi
 
 # Prevent system updates
 apt-mark hold proxmox-backup-server proxmox-backup-docs
+
+# Install supercronic
+if [[ "$TARGETARCH" == "amd64" ]]; then
+
+  SUPERCRONIC=supercronic-linux-amd64
+  SUPERCRONIC_URL=https://github.com/aptible/supercronic/releases/download/v0.2.46/supercronic-linux-amd64
+
+else
+
+  SUPERCRONIC=supercronic-linux-arm64
+  SUPERCRONIC_URL=https://github.com/aptible/supercronic/releases/download/v0.2.46/supercronic-linux-arm64
+
+fi
+
+curl -fsSLO "$SUPERCRONIC_URL"
+chmod +x "$SUPERCRONIC"
+mv "$SUPERCRONIC" "/usr/local/bin/${SUPERCRONIC}"
+ln -s "/usr/local/bin/${SUPERCRONIC}" /usr/local/bin/supercronic
 
 # Remove enterprise repo added by Proxmox packages — keep only no-subscription
 rm -f /etc/apt/sources.list.d/pbs-enterprise.list \

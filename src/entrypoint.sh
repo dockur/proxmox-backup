@@ -104,13 +104,40 @@ read -r POSTFIX_PID < /var/spool/postfix/pid/master.pid
 
 echo "Starting supercronic..."
 echo "30 2 * * * $dir/proxmox-daily-update 2>&1 | tee -a /tmp/daily.log" > /docker.cron
-supercronic /docker.cron >/dev/null &
+supercronic /docker.cron &
 CRON_PID=$!
 
-# Start rsyslog
-echo "Starting rsyslog..."
-rsyslogd
-RSYSLOG_PID=$(cat /var/run/rsyslogd.pid 2>/dev/null || echo "")
+echo "Starting rsyslogd..."
+cat >/etc/rsyslog.conf <<'EOF'
+module(load="imuxsock")
+input(type="imuxsock" Socket="/dev/log")
+template(name="DockerFormat" type="string" string="%programname%:%msg%\n")
+if $msg contains '#000' then stop
+if $msg contains 'IORITY' then stop
+if $msg contains 'F_LOG_TARGET' then stop
+if $msg contains 'SYSLOG_IDENTIFIER' then stop
+if $programname == 'runuser' then stop
+if $programname == 'rsyslogd' and $msg contains '[origin software="rsyslogd"' then stop
+*.* action(type="omfile" file="/var/log/system.log" template="DockerFormat")
+EOF
+
+rm -f /var/log/system.log
+chmod 0644 /etc/rsyslog.conf
+
+rsyslogd -n -iNONE -f /etc/rsyslog.conf &
+RSYSLOG_PID=$!
+
+while [ ! -S /dev/log ]; do
+  sleep 0.2
+done
+
+mkdir -p /run/systemd/journal
+
+ln -sf /dev/log /run/systemd/journal/syslog
+ln -sf /dev/log /run/systemd/journal/socket
+
+touch /var/log/system.log
+tail -F /var/log/system.log &
 
 _trap() {
   local func="$1"; shift
@@ -194,6 +221,7 @@ info ".   https://127.0.0.1:${PORT:-8007}"
 info ""
 info "------------------------------------------------------------------------------"
 info ""
+echo ""
 
 # Wait for processes
 wait -n "${API_PID:-}" "${PBS_PID:-}" 2>/dev/null || :
