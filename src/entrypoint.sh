@@ -27,10 +27,6 @@ if ! grep -qE ' /run tmpfs ' /proc/mounts; then
   [[ "${DEBUG:-}" != [Yy1]* ]] && exit 14
 fi
 
-# TODO:
-#
-# - Daily cron jobs
-
 # If missing timezone and localtime set them
 set_timezone() {
   local zone="$1"
@@ -91,12 +87,25 @@ dir="/run/proxmox-backup"
 mkdir -p "$dir"
 chown "$user:$user" "$dir" || :
 
+arch=$(dpkg --print-architecture)
+
+if [[ "$arch" == "amd64" ]]; then
+  dir="/usr/lib/x86_64-linux-gnu/proxmox-backup"
+else
+  dir="/usr/lib/aarch64-linux-gnu/proxmox-backup"
+fi
+
 echo "Starting Postfix..."
 RELAY_HOST=${RELAY_HOST:-ext.home.local}
 sed -i "s/RELAY_HOST/$RELAY_HOST/" /etc/postfix/main.cf
 
 /etc/init.d/postfix start || ok=1
 read -r POSTFIX_PID < /var/spool/postfix/pid/master.pid
+
+echo "Starting supercronic..."
+echo "30 2 * * * $dir/proxmox-daily-update 2>&1 | tee -a /tmp/daily.log" > /docker.cron
+supercronic /docker.cron >/dev/null &
+CRON_PID=$!
 
 # Start rsyslog
 echo "Starting rsyslog..."
@@ -124,6 +133,7 @@ cleanup() {
   pids=(
     "${PBS_PID:-}"
     "${API_PID:-}"
+    "${CRON_PID:-}"
     "${POSTFIX_PID:-}"
     "${RSYSLOG_PID:-}"
   )
@@ -154,15 +164,8 @@ _trap cleanup SIGTERM SIGINT
 # Start PBS Services
 echo "Starting Proxmox Backup API..."
 
-arch=$(dpkg --print-architecture)
 file="/run/proxmox-backup/api.pid"
 rm -f "$file"
-
-if [[ "$arch" == "amd64" ]]; then
-  dir="/usr/lib/x86_64-linux-gnu/proxmox-backup"
-else
-  dir="/usr/lib/aarch64-linux-gnu/proxmox-backup"
-fi
 
 "$dir/proxmox-backup-api" &
 API_PID=$!
