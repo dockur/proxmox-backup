@@ -119,8 +119,9 @@ else
   (cd "$tmpdir" && ./build.sh "install=${VERSION_ARG}")
   rm -rf "$tmpdir"
 
-  apt-get remove -y \
+  SUDO_FORCE_REMOVE=yes apt-get remove -y \
     git \
+    sudo \
     dpkg-dev \
     apt-transport-https
 
