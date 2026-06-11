@@ -89,6 +89,7 @@ DEB
   apt-get update
   apt-get install -y --no-install-recommends \
     proxmox-backup-docs \
+    proxmox-backup-client \
     proxmox-backup-server
 
 else
@@ -118,7 +119,10 @@ else
 fi
 
 # Prevent system updates
-apt-mark hold proxmox-backup-server proxmox-backup-docs
+apt-mark hold \
+   proxmox-backup-docs \
+   proxmox-backup-client \
+   proxmox-backup-server
 
 # Install supercronic
 if [[ "$TARGETARCH" == "amd64" ]]; then
