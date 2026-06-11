@@ -104,7 +104,7 @@ read -r POSTFIX_PID < /var/spool/postfix/pid/master.pid
 
 echo "Starting supercronic..."
 echo "30 2 * * * $dir/proxmox-daily-update 2>&1 | tee -a /tmp/daily.log" > /docker.cron
-supercronic /docker.cron &
+supercronic -quiet -no-reap /docker.cron &
 CRON_PID=$!
 
 echo "Starting rsyslogd..."
