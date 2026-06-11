@@ -21,12 +21,32 @@ jobs:
       packages: write
       contents: read
     steps:
-      -
-        name: Get remote package data
+      - 
+        name: Run graphql query to get tag
+        uses: octokit/graphql-action@v3.x
+        id: latest_tag
+        with:
+          variables: |
+            repo: proxmox-backup-arm64
+            owner: qemus
+          query: |
+            query tag($owner: String!, $repo: String!) {
+              repository(owner: $owner, name: $repo) {
+                refs(refPrefix: "refs/tags/", last: 1, orderBy: {field: TAG_COMMIT_DATE, direction: ASC}) {
+                  edges {
+                    node {
+                      name
+               } } } } }
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - 
+        name: Parse tag from query output
         run: |
-          set -e -o pipefail
-          latest_tag=$(curl -fsSL "https://metadata.cdn.proxmox.com/download/changelogs/pbs/dists/trixie/pbs-no-subscription/p/proxmox-backup/" | \
-          grep -oP '(?<=proxmox-backup_)[0-9]+\.[0-9]+\.[0-9]+(?=\.changelog)' | sort -V | tail -1)
+          #!/bin/bash
+          latest_tag=$(echo '${{ steps.latest_tag.outputs.data }}' | jq '.repository.refs.edges[][].name' -r)
+          [ -z "$latest_tag" ] && echo "Tag not found!" && exit 1
+          [[ "$latest_tag" == "null" ]] && echo "Tag not found!" && exit 1
+          [[ "$latest_tag" = v* ]] && latest_tag="${latest_tag:1}"
           echo "Found tag: \"${latest_tag}\""
           latest_version="${latest_tag%-*}"
           major="${latest_version%%.*}"
