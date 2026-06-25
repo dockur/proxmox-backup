@@ -94,7 +94,7 @@ volumes:
 Special thanks to [feddar](https://github.com/feddar) and [wofferl](https://github.com/wofferl), this project would not exist without their invaluable work.
 
 ## Stars 🌟
-[![Stars](https://starchart.cc/dockur/proxmox-backup.svg?variant=adaptive)](https://starchart.cc/dockur/proxmox-backup)
+[![Stargazers](https://raw.githubusercontent.com/star-stats/stars/refs/heads/data/charts/dockur-proxmox-backup.svg)](https://github.com/dockur/proxmox-backup/stargazers)
 
 [build_url]: https://github.com/dockur/proxmox-backup/
 [hub_url]: https://hub.docker.com/r/dockurr/proxmox-backup/
