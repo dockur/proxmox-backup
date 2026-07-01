@@ -2,9 +2,9 @@
 set -Eeuo pipefail
 
 # Docker environment variables
-: "${DEBUG:="N"}"             # Enable shell debugging with DEBUG=Y
+: "${DEBUG:="N"}"             # Enable debugging
 : "${PASSWORD:="root"}"       # Default password
-: "${POSTFIX:="Y"}"           # Start Postfix for outgoing system/report mails
+: "${POSTFIX:="Y"}"           # Start Postfix for mails
 : "${RELAY_HOST:="ext.home.local"}"
 
 # Helper functions
@@ -18,10 +18,6 @@ is_enabled() {
     *) return 1 ;;
   esac
 }
-
-if is_enabled "$DEBUG"; then
-  set -x
-fi
 
 require_cmd() {
   command -v "$1" >/dev/null 2>&1 || {
@@ -377,7 +373,7 @@ if [ ! -s "$api_pid_file" ]; then
   warn "Backup API pid file not found after 30s, starting proxy anyway."
 fi
 
-echo "Starting Proxmox Backup Proxy as $user on port ${PORT:-8007}..."
+echo "Starting Proxmox Backup Proxy..."
 
 gosu "$user" "$dir/proxmox-backup-proxy" "$@" &
 PBS_PID="$!"
@@ -385,7 +381,7 @@ PBS_PID="$!"
 wait_process_alive "$PBS_PID" "proxmox-backup-proxy" 1 || cleanup
 
 # Final readiness check.
-echo "Checking PBS readiness..."
+echo "Checking Proxmox Backup readiness..."
 
 if command -v ss >/dev/null 2>&1; then
   for _ in $(seq 1 60); do
