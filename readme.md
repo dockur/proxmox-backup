@@ -88,7 +88,7 @@ volumes:
 
 ### Are there containers available for other Proxmox products?
 
-  Yes, see our [Proxmox VE](https://github.com/dockur/proxmox) and [Proxmox Datacenter Manager](https://github.com/dockur/proxmox-dm) containers.
+  Yes, see our [Proxmox VE](https://github.com/dockur/proxmox), [Proxmox Datacenter Manager](https://github.com/dockur/proxmox-dm) and [Proxmox Mail Gateway](https://github.com/dockur/proxmox-mail) containers.
 
 ## Acknowledgements 🙏
 
