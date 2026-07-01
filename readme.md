@@ -97,6 +97,10 @@ Special thanks to [feddar](https://github.com/feddar) and [wofferl](https://gith
 ## Stars 🌟
 [![Stargazers](https://raw.githubusercontent.com/star-stats/stars/refs/heads/data/charts/dockur-proxmox-backup.svg)](https://github.com/dockur/proxmox-backup/stargazers)
 
+## Disclaimer ⚖️
+
+*The product names, logos, brands, and other trademarks referred to within this project are the property of their respective trademark holders. This project is not affiliated, sponsored, or endorsed by Proxmox Server Solutions GmbH.*
+
 [build_url]: https://github.com/dockur/proxmox-backup/
 [hub_url]: https://hub.docker.com/r/dockurr/proxmox-backup/
 [tag_url]: https://hub.docker.com/r/dockurr/proxmox-backup/tags
