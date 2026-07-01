@@ -2,7 +2,7 @@
 set -Eeuo pipefail
 
 # Docker environment variables
-: "${DEBUG:="N"}"             # Enable shell debugging
+: "${DEBUG:="N"}"             # Enable debugging
 : "${PASSWORD:="root"}"       # Default password
 : "${POSTFIX:="Y"}"           # Start Postfix for mails
 : "${RELAY_HOST:="ext.home.local"}"
