@@ -24,7 +24,7 @@ Proxmox Backup Server inside a Docker container.
 
 ## Usage  🐳
 
-##### Via Docker Compose:
+##### Docker Compose:
 
 ```yaml
 services:
@@ -46,13 +46,13 @@ services:
     stop_grace_period: 2m
 ```
 
-##### Via Docker CLI:
+##### Docker CLI:
 
 ```bash
 docker run -it --rm --name pbs --hostname pbs -e "PASSWORD=root" -e "TZ=America/New_York" -p 8007:8007 --tmpfs /run -v "${PWD:-.}/config:/etc/proxmox-backup" -v "${PWD:-.}/data:/var/lib/proxmox-backup" --stop-timeout 120 docker.io/dockurr/proxmox-backup
 ```
 
-##### Via GitHub Codespaces:
+##### GitHub Codespaces:
 
 [![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/dockur/proxmox-backup)
 
