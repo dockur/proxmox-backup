@@ -33,6 +33,22 @@ require_exec() {
   }
 }
 
+ensure_dir() {
+  local dir="$1"
+  local mode="${2:-}"
+  local owner="${3:-}"
+
+  mkdir -p "$dir"
+
+  if [ -n "$mode" ]; then
+    chmod "$mode" "$dir" || :
+  fi
+
+  if [ -n "$owner" ]; then
+    chown "$owner" "$dir" || :
+  fi
+}
+
 process_alive() {
   local pid="${1:-}"
 
@@ -55,6 +71,44 @@ wait_process_alive() {
   return 0
 }
 
+wait_file() {
+  local file="$1"
+  local pid="$2"
+  local name="$3"
+  local seconds="$4"
+  local i
+
+  for i in $(seq 1 "$seconds"); do
+    [ -s "$file" ] && return 0
+
+    if ! process_alive "$pid"; then
+      warn "$name exited before writing pid file."
+      cleanup
+    fi
+
+    info "Waiting for $name process ($i/$seconds)..."
+    sleep 1
+  done
+
+  return 1
+}
+
+wait_port() {
+  local pattern="$1"
+  local seconds="$2"
+  local message="$3"
+
+  for _ in $(seq 1 "$seconds"); do
+    if ss -ltn | grep -q "$pattern"; then
+      return 0
+    fi
+    sleep 1
+  done
+
+  warn "$message"
+  return 1
+}
+
 read_pidfile() {
   local file
 
@@ -74,13 +128,16 @@ read_pidfile() {
 [ ! -f "/usr/local/bin/entrypoint.sh" ] && error "Script must be run inside the container!" && exit 12
 
 # Check required binaries early.
-require_cmd chpasswd
-require_cmd gosu
-require_cmd supercronic
-require_cmd rsyslogd
-require_cmd grep
-require_cmd awk
-require_cmd dpkg
+for cmd in \
+  chpasswd \
+  gosu \
+  supercronic \
+  rsyslogd \
+  grep \
+  awk \
+  dpkg; do
+  require_cmd "$cmd"
+done
 
 if is_enabled "$POSTFIX"; then
   if [ ! -x /etc/init.d/postfix ]; then
@@ -156,22 +213,10 @@ usermod -s /bin/bash "$user" >/dev/null || :
 usermod -a -G "$user" root >/dev/null || :
 usermod -aG sudo "$user" >/dev/null || :
 
-dir="/etc/proxmox-backup"
-mkdir -p "$dir"
-chmod 0700 "$dir" || :
-chown "$user:$user" "$dir" || :
-
-dir="/var/lib/proxmox-backup"
-mkdir -p "$dir"
-chown "$user:$user" "$dir" || :
-
-dir="/var/log/proxmox-backup"
-mkdir -p "$dir"
-chown "$user:$user" "$dir" || :
-
-dir="/run/proxmox-backup"
-mkdir -p "$dir"
-chown "$user:$user" "$dir" || :
+ensure_dir "/etc/proxmox-backup" 0700 "$user:$user"
+ensure_dir "/var/lib/proxmox-backup" "" "$user:$user"
+ensure_dir "/var/log/proxmox-backup" "" "$user:$user"
+ensure_dir "/run/proxmox-backup" "" "$user:$user"
 
 # Detect PBS libexec directory.
 multiarch=""
@@ -357,19 +402,7 @@ API_PID="$!"
 wait_process_alive "$API_PID" "proxmox-backup-api" 1 || cleanup
 
 # Wait for the API process to be ready.
-for i in $(seq 1 30); do
-  [ -s "$api_pid_file" ] && break
-
-  if ! process_alive "$API_PID"; then
-    warn "Proxmox Backup API exited before writing pid file."
-    cleanup
-  fi
-
-  info "Waiting for Backup API process ($i/30)..."
-  sleep 1
-done
-
-if [ ! -s "$api_pid_file" ]; then
+if ! wait_file "$api_pid_file" "$API_PID" "Proxmox Backup API" 30; then
   warn "Backup API pid file not found after 30s, starting proxy anyway."
 fi
 
@@ -384,16 +417,7 @@ wait_process_alive "$PBS_PID" "proxmox-backup-proxy" 1 || cleanup
 echo "Checking Proxmox Backup readiness..."
 
 if command -v ss >/dev/null 2>&1; then
-  for _ in $(seq 1 60); do
-    if ss -ltn | grep -q ":${PORT:-8007} "; then
-      break
-    fi
-    sleep 1
-  done
-
-  if ! ss -ltn | grep -q ":${PORT:-8007} "; then
-    warn "PBS web interface does not appear to be listening on port ${PORT:-8007}."
-  fi
+  wait_port ":${PORT:-8007} " 60 "PBS web interface does not appear to be listening on port ${PORT:-8007}." || :
 else
   warn "Cannot run readiness port check because 'ss' is not installed."
 fi
