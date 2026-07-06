@@ -24,6 +24,8 @@ require_cmd() {
     error "Required command not found: $1"
     exit 21
   }
+
+  return 0
 }
 
 require_exec() {
@@ -31,6 +33,8 @@ require_exec() {
     error "Required executable not found: $1"
     exit 22
   }
+
+  return 0
 }
 
 ensure_dir() {
@@ -47,6 +51,8 @@ ensure_dir() {
   if [ -n "$owner" ]; then
     chown "$owner" "$dir" || :
   fi
+
+  return 0
 }
 
 process_alive() {
@@ -83,7 +89,7 @@ wait_file() {
 
     if ! process_alive "$pid"; then
       warn "$name exited before writing pid file."
-      cleanup
+      cleanup 1
     fi
 
     info "Waiting for $name process ($i/$seconds)..."
@@ -345,9 +351,13 @@ _trap() {
   for sig; do
     trap "$func $sig" "$sig"
   done
+
+  return 0
 }
 
 cleanup() {
+  local exit_code="${1:-0}"
+
   [ -f /proxmox.end ] && return 0
   [[ "${BASHPID:-}" != "${TRAP_PID:-}" ]] && return 0
 
@@ -382,13 +392,19 @@ cleanup() {
   done
 
   echo ""
-  echo "Shutdown completed successfully."
-  exit 0
+
+  if [ "$exit_code" -eq 0 ]; then
+    echo "Shutdown completed successfully."
+  else
+    echo "Shutdown completed after an error."
+  fi
+
+  exit "$exit_code"
 }
 
 # Init trap.
 rm -f /proxmox.end
-_trap cleanup SIGTERM SIGINT
+_trap "cleanup 0" SIGTERM SIGINT
 
 # Start PBS services.
 echo "Starting Proxmox Backup API..."
@@ -399,7 +415,7 @@ rm -f "$api_pid_file"
 "$dir/proxmox-backup-api" &
 API_PID="$!"
 
-wait_process_alive "$API_PID" "proxmox-backup-api" 1 || cleanup
+wait_process_alive "$API_PID" "proxmox-backup-api" 1 || cleanup 1
 
 # Wait for the API process to be ready.
 if ! wait_file "$api_pid_file" "$API_PID" "Proxmox Backup API" 30; then
@@ -411,7 +427,7 @@ echo "Starting Proxmox Backup Proxy..."
 gosu "$user" "$dir/proxmox-backup-proxy" "$@" &
 PBS_PID="$!"
 
-wait_process_alive "$PBS_PID" "proxmox-backup-proxy" 1 || cleanup
+wait_process_alive "$PBS_PID" "proxmox-backup-proxy" 1 || cleanup 1
 
 # Final readiness check.
 echo "Checking Proxmox Backup readiness..."
@@ -452,4 +468,4 @@ while true; do
 done
 
 info "A required PBS process exited unexpectedly. Shutting down..."
-cleanup
+cleanup 1
