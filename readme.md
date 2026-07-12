@@ -35,8 +35,8 @@ services:
     container_name: pbs
     image: dockurr/proxmox-backup
     environment:
+      TZ: "UTC"
       PASSWORD: "root"
-      TZ: "America/New_York"
     ports:
       - 8007:8007
     tmpfs:
