@@ -342,13 +342,14 @@ supercronic -quiet -no-reap /docker.cron &
 CRON_PID="$!"
 wait_process_alive "$CRON_PID" "supercronic" 1 || :
 
-# Trap helper.
 _trap() {
   local func="$1"; shift
   local sig
   TRAP_PID="$BASHPID"
 
   for sig; do
+    # Capture the local callback and signal while registering the trap.
+    # shellcheck disable=SC2064
     trap "$func $sig" "$sig"
   done
 
