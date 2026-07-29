@@ -4,6 +4,7 @@ set -Eeuo pipefail
 # Docker environment variables
 : "${DEBUG:="N"}"             # Enable debugging
 : "${PASSWORD:="root"}"       # Default password
+: "${PASSWORD_HASH:=""}"       # Default password hash is empty
 : "${POSTFIX:="Y"}"           # Start Postfix for mails
 : "${RELAY_HOST:="ext.home.local"}"
 
@@ -157,7 +158,11 @@ info "For support visit https://github.com/dockur/proxmox-backup"
 echo ""
 
 # Update password for root
-printf 'root:%s\n' "$PASSWORD" | chpasswd
+if [ -n "$PASSWORD_HASH" ]; then
+  usermod -p  root <<<"$PASSWORD_HASH"
+else
+  printf 'root:%s\n' "$PASSWORD" | chpasswd
+fi
 
 # PBS expects /run to be tmpfs.
 if ! grep -qE ' /run tmpfs ' /proc/mounts; then
