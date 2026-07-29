@@ -48,12 +48,6 @@ services:
     stop_grace_period: 2m
 ```
 
-You may also provide a hashed password.
-```yml
-      -PASSWORD: "root"
-      +PASSWORD_HASH: "$y$j9T$jFNdWereGcW8C.oh4TQLN.$GMhBzab7aHsFk4Q.qojP4Mh4c.8N7Bx1XVdqsYztXQC"
-```
-
 ##### Docker CLI:
 
 ```bash
