@@ -88,6 +88,21 @@ volumes:
 
   Replace the example paths `./config` and `./data` with the desired folders or named volumes.
 
+### Is the Raspberry Pi 5 supported?
+
+Yes, but the Raspberry Pi 5 uses a 16k page-size kernel by default, which is incompatible with Proxmox Backup Server and can result in a `400 Bad Request: EINVAL: Invalid argument` error when creating backups.
+
+To fix this:
+
+1. Edit `/boot/firmware/config.txt` on the host system.
+2. Add the following line at the end:
+   ```ini
+   kernel=kernel8.img
+   ```
+3. Reboot the Raspberry Pi.
+
+This switches the system to the 4k page-size kernel, which is compatible with Proxmox Backup Server.
+
 ### Are there containers available for other Proxmox products?
 
   Yes, see our [Proxmox VE](https://github.com/dockur/proxmox), [Proxmox Datacenter Manager](https://github.com/dockur/proxmox-dm) and [Proxmox Mail Gateway](https://github.com/dockur/proxmox-mail) containers.
