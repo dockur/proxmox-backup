@@ -142,9 +142,18 @@ for cmd in \
   rsyslogd \
   grep \
   awk \
+  getconf \
   dpkg; do
   require_cmd "$cmd"
 done
+
+page_size="$(getconf PAGESIZE)"
+
+if [ "$page_size" -ne 4096 ]; then
+  warn "Host kernel uses a ${page_size}-byte page size, but Proxmox Backup Server requires 4096-byte pages."
+  warn "Backups may fail with '400 Bad Request: EINVAL: Invalid argument'."
+  warn "On Raspberry Pi 5, add 'kernel=kernel8.img' to /boot/firmware/config.txt and reboot the host."
+fi
 
 if is_enabled "$POSTFIX"; then
   if [ ! -x /etc/init.d/postfix ]; then
