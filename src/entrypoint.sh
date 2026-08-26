@@ -238,11 +238,6 @@ ensure_dir "/var/lib/proxmox-backup" "" "$user:$user"
 ensure_dir "/var/log/proxmox-backup" "" "$user:$user"
 ensure_dir "/run/proxmox-backup" "" "$user:$user"
 
-# Create default datastore on first startup.
-if [ ! -s /etc/proxmox-backup/datastore.cfg ]; then
-  proxmox-backup-manager datastore create data /var/lib/proxmox-backup/datastore
-fi
-
 # Detect PBS libexec directory.
 multiarch=""
 
@@ -440,6 +435,11 @@ wait_process_alive "$API_PID" "proxmox-backup-api" 1 || cleanup 1
 # Wait for the API process to be ready.
 if ! wait_file "$api_pid_file" "$API_PID" "Proxmox Backup API" 30; then
   warn "Backup API pid file not found after 30s, starting proxy anyway."
+fi
+
+# Create default datastore on first startup.
+if [ ! -s /etc/proxmox-backup/datastore.cfg ]; then
+  proxmox-backup-manager datastore create data /var/lib/proxmox-backup/datastore
 fi
 
 echo "Starting Proxmox Backup Proxy..."
