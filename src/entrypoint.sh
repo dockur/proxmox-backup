@@ -437,11 +437,6 @@ if ! wait_file "$api_pid_file" "$API_PID" "Proxmox Backup API" 30; then
   warn "Backup API pid file not found after 30s, starting proxy anyway."
 fi
 
-# Create default datastore on first startup.
-if [ ! -s /etc/proxmox-backup/datastore.cfg ]; then
-  proxmox-backup-manager datastore create data /var/lib/proxmox-backup/datastore
-fi
-
 echo "Starting Proxmox Backup Proxy..."
 
 gosu "$user" "$dir/proxmox-backup-proxy" "$@" &
@@ -456,6 +451,11 @@ if command -v ss >/dev/null 2>&1; then
   wait_port ":${PORT:-8007} " 60 "PBS web interface does not appear to be listening on port ${PORT:-8007}." || :
 else
   warn "Cannot run readiness port check because 'ss' is not installed."
+fi
+
+# Create default datastore on first startup.
+if [ ! -s /etc/proxmox-backup/datastore.cfg ]; then
+  proxmox-backup-manager datastore create data /var/lib/proxmox-backup/datastore
 fi
 
 echo ""
